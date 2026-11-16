@@ -1,0 +1,27 @@
+{
+  "name": "till",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Till: an invoice that marks itself paid, whichever chain the money lands on. Built on Reactive Omni.",
+  "license": "MIT",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test",
+    "fmt": "forge fmt",
+    "wallet": "node scripts/wallet.mjs",
+    "balances": "node --env-file=.env scripts/balances.mjs",
+    "faucet": "node --env-file=.env scripts/faucet.mjs",
+    "deploy": "forge build && node --env-file=.env scripts/deploy.mjs",
+    "e2e": "node --env-file=.env scripts/e2e.mjs"
+  },
+  "devDependencies": {
+    "@foundry-rs/anvil": "1.7.1",
+    "@foundry-rs/cast": "1.7.1",
+    "@foundry-rs/forge": "1.7.1",
+    "viem": "^2.57.20"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=20.6"
+  }
+}
