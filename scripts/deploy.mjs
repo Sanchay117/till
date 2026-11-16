@@ -9,7 +9,7 @@
 import { concat, formatEther, getContractAddress, parseEther } from 'viem'
 import {
   CREATE2_DEPLOYER, FACTORY_SALT, HOME, PAY_CHAINS, REACTIVE, account, addressUrl, artifact, loadDeployments,
-  network, publicClient, saveDeployments, txOverrides, txUrl, walletClient,
+  network, publicClient, saveDeployments, txOverrides, txUrl, waitFor, walletClient,
 } from './lib.mjs'
 
 const TILL_FUND = parseEther(process.env.TILL_FUND_REACT || '2') // REACT for reactive transactions
@@ -47,7 +47,8 @@ for (const key of PAY_CHAINS) {
   }
   const hash = await walletClient(key).sendTransaction({ to: CREATE2_DEPLOYER, data: concat([FACTORY_SALT, factoryInitCode]) })
   await mined(key, hash, `ForwarderFactory on ${network(key).name}`)
-  if (!(await client.getCode({ address: factory }))) throw new Error(`Factory did not land at ${factory} on ${key}`)
+  // Public RPCs are load-balanced: the node answering this read can lag the one that mined the tx.
+  await waitFor(() => client.getCode({ address: factory }), { timeoutMs: 30_000, everyMs: 1000, what: `factory code at ${factory} on ${key}` })
 }
 d.factory = factory
 saveDeployments(d)

@@ -4,8 +4,32 @@
 
 Built for the [Reactive Omni Buildathon](https://dorahacks.io/hackathon/reactive-omni-buildathon/detail), track *Set It and Forget It*.
 
-> Status, 16 Nov 2026: contracts written and tested locally (35 tests). **Not deployed yet**, so there are
-> no live addresses, transaction hashes or measured timings here. They will replace this note.
+> Status, 16 Nov 2026: live on Reactive Lasna, Base Sepolia, Unichain Sepolia and Ethereum Sepolia.
+> Five of five test invoices settled. Paid on Unichain, marked PAID on Base 1 to 2 seconds later by
+> block time (2.3 to 2.7 s as seen from a laptop). Five runs is a first sample, not a benchmark.
+> There is no web app yet; the loop runs from `npm run e2e`.
+
+## Live on testnet
+
+| Contract | Chain | Address |
+|---|---|---|
+| TillReactive | Reactive Lasna | [`0xc0605f77903922a466e1292f1fa7a0240f46e7dc`](https://lasna.reactscan.net/address/0xc0605f77903922a466e1292f1fa7a0240f46e7dc) |
+| InvoiceBook | Base Sepolia | [`0xfa222c8fc2af8ca27a23816f071449d08141a5a1`](https://sepolia.basescan.org/address/0xfa222c8fc2af8ca27a23816f071449d08141a5a1) |
+| Collector | Base Sepolia | [`0xc88a34d40a9b87700e3e81dc2c87fbdc3a97b6aa`](https://sepolia.basescan.org/address/0xc88a34d40a9b87700e3e81dc2c87fbdc3a97b6aa) |
+| Collector | Unichain Sepolia | [`0xc88a34d40a9b87700e3e81dc2c87fbdc3a97b6aa`](https://sepolia.uniscan.xyz/address/0xc88a34d40a9b87700e3e81dc2c87fbdc3a97b6aa) |
+| Collector | Ethereum Sepolia | [`0x8e08a7577e67de4dd3230c5932fbe19281d43b9d`](https://sepolia.etherscan.io/address/0x8e08a7577e67de4dd3230c5932fbe19281d43b9d) |
+| ForwarderFactory | all three pay chains | `0x8C6835c46ceb6FC07624bC920af255091765dcB5` |
+
+One full loop, from origin event to both callbacks (invoice `0x9a26acce…030b75`, 0.10 test USDC):
+
+| Step | Chain | Transaction |
+|---|---|---|
+| 1. Invoice created | Base Sepolia | [`0xa6740809…`](https://sepolia.basescan.org/tx/0xa6740809d752890f699558bed32eaab445652eb034d5bb723d696071bc295c16) |
+| 2. Reactive starts watching the deposit address | Lasna | [`0x6f8af292…`](https://lasna.reactscan.net/tx/0x6f8af292e15d50aabb05dd674735f6c296e7dcd5b90f670a545181d227c73b0b) |
+| 3. Payer sends USDC, a plain transfer | Unichain Sepolia | [`0xedbee6c1…`](https://sepolia.uniscan.xyz/tx/0xedbee6c1954170c77e7a66cb0782b83a1ab70d42ecd0c004e58ad1984d040e72) |
+| 4. Reactive transaction | Lasna | [`0x8602880b…`](https://lasna.reactscan.net/tx/0x8602880b03e68ff0cfce68a982af5b38a7be2cde39e54561997833f45c183767) |
+| 5. Callback: invoice marked PAID | Base Sepolia | [`0xed2d0f8e…`](https://sepolia.basescan.org/tx/0xed2d0f8eb3b05d312874d7668d2f3492941fdef13d2b8ee9c55fb9a61ab7f6ae) |
+| 6. Callback: money swept to the seller | Unichain Sepolia | [`0x98b4cbbd…`](https://sepolia.uniscan.xyz/tx/0x98b4cbbda281afbf13b4b311b6ae79afb389605137896c35e328f53ebc26cecd) |
 
 ## The problem
 
@@ -115,11 +139,20 @@ at the real addresses. The Till contracts are the real ones.
 npm run wallet
 ```
 
-This creates a fresh, testnet-only key in `.env` and prints its address. Fund that address with a little
-Base Sepolia and Unichain Sepolia ETH, and test USDC from <https://faucet.circle.com>. Then:
+This creates a fresh, testnet-only key in `.env` and prints its address. One faucet can fund everything:
+mine 0.05 Sepolia ETH to that address at <https://sepolia-faucet.pk910.de/>, and get test USDC from
+<https://faucet.circle.com>. Then turn the Sepolia ETH into lREACT and into gas on the other chains:
 
 ```bash
-npm run faucet
+npm run faucet -- 0.042 sepolia
+```
+
+```bash
+npm run bridge -- unichainSepolia 0.002
+```
+
+```bash
+npm run bridge -- baseSepolia 0.002
 ```
 
 ```bash
@@ -130,7 +163,8 @@ npm run deploy
 npm run e2e
 ```
 
-`faucet` swaps 0.05 Base Sepolia ETH for 5 lREACT. `deploy` is safe to re-run and writes addresses to
+`faucet` swaps test ETH for lREACT at 1 ETH = 100 lREACT. `bridge` uses each chain's canonical bridge.
+`deploy` is safe to re-run and writes addresses to
 `deployments/testnet.json`. `e2e` creates an invoice, pays it on Unichain Sepolia, waits for PAID, and
 prints every transaction in the loop with its timing.
 

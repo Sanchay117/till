@@ -15,7 +15,8 @@
     "e2e": "node --env-file=.env scripts/e2e.mjs",
     "local": "forge build && node --env-file=devnet.env scripts/local.mjs",
     "e2e:local": "node --env-file=devnet.env scripts/e2e.mjs",
-    "balances:local": "node --env-file=devnet.env scripts/balances.mjs"
+    "balances:local": "node --env-file=devnet.env scripts/balances.mjs",
+    "bridge": "node --env-file=.env scripts/bridge.mjs"
   },
   "devDependencies": {
     "@foundry-rs/anvil": "1.7.1",
