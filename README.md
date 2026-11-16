@@ -90,6 +90,25 @@ npm install
 npm test
 ```
 
+### Run the whole loop locally, with no testnet coins
+
+```bash
+npm run local
+```
+
+Leave that running. It starts three local chains with the real chain ids (Base Sepolia, Unichain Sepolia,
+Reactive Lasna), deploys Till with the same script used for the testnets, and runs a small relayer that
+plays Reactive Network. Then, in a second terminal:
+
+```bash
+npm run e2e:local
+```
+
+That creates an invoice on the local Base, pays it on the local Unichain, and prints each step until the
+invoice is PAID and the money is swept. What is faked is listed at the top of
+[`scripts/local.mjs`](scripts/local.mjs): the system contract, the callback proxies and USDC are mocks placed
+at the real addresses. The Till contracts are the real ones.
+
 ### Deploy to the testnets
 
 ```bash

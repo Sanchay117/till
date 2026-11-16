@@ -20,3 +20,6 @@ app/dist/
 Thumbs.db
 .vscode/
 .idea/
+
+# local devnet output
+deployments/local.json

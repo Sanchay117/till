@@ -31,9 +31,9 @@ const usdc = d.payChains[payOn].usdc
 
 const blockTime = async (client, blockNumber) => Number((await client.getBlock({ blockNumber })).timestamp)
 
-/** First log of `eventName` for this invoice id, from `fromBlock` on. */
-async function findEvent(client, address, abi, eventName, id, fromBlock) {
-  const logs = await client.getContractEvents({ address, abi, eventName, args: { id, invoiceId: id }, fromBlock })
+/** First log of `eventName` matching the indexed `args`, from `fromBlock` on. */
+async function findEvent(client, address, abi, eventName, args, fromBlock) {
+  const logs = await client.getContractEvents({ address, abi, eventName, args, fromBlock })
   return logs[0] ?? null
 }
 
@@ -60,7 +60,7 @@ async function round(i) {
 
   // 2. Reactive hears InvoiceCreated and starts watching the deposit address.
   const watching = await waitFor(
-    () => findEvent(reactive, d.reactive.till, tillAbi, 'Watching', created.id, reactiveFrom),
+    () => findEvent(reactive, d.reactive.till, tillAbi, 'Watching', { invoiceId: created.id }, reactiveFrom),
     { what: 'Till to start watching the deposit address' },
   )
   console.log(`2. Till is watching    ${txUrl(REACTIVE, watching.transactionHash)}`)
@@ -79,17 +79,17 @@ async function round(i) {
 
   // 4. The invoice marks itself paid on the home chain.
   const paid = await waitFor(
-    () => findEvent(home, d.home.invoiceBook, bookAbi, 'InvoicePaid', created.id, homeFrom),
+    () => findEvent(home, d.home.invoiceBook, bookAbi, 'InvoicePaid', { id: created.id }, homeFrom),
     { everyMs: 150, what: 'the invoice to be marked paid' },
   )
   const paidSeenAt = Date.now()
 
   const seen = await waitFor(
-    () => findEvent(reactive, d.reactive.till, tillAbi, 'PaymentSeen', created.id, reactiveFrom2),
+    () => findEvent(reactive, d.reactive.till, tillAbi, 'PaymentSeen', { invoiceId: created.id }, reactiveFrom2),
     { what: "Till's reactive transaction" },
   )
   const swept = await waitFor(
-    () => findEvent(pay, d.payChains[payOn].collector, collectorAbi, 'Swept', created.id, payReceipt.blockNumber),
+    () => findEvent(pay, d.payChains[payOn].collector, collectorAbi, 'Swept', { invoiceId: created.id }, payReceipt.blockNumber),
     { what: 'the sweep callback' },
   )
   console.log(`4. Reactive reacted    ${txUrl(REACTIVE, seen.transactionHash)}`)

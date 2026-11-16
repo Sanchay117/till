@@ -12,7 +12,10 @@
     "balances": "node --env-file=.env scripts/balances.mjs",
     "faucet": "node --env-file=.env scripts/faucet.mjs",
     "deploy": "forge build && node --env-file=.env scripts/deploy.mjs",
-    "e2e": "node --env-file=.env scripts/e2e.mjs"
+    "e2e": "node --env-file=.env scripts/e2e.mjs",
+    "local": "forge build && node --env-file=devnet.env scripts/local.mjs",
+    "e2e:local": "node --env-file=devnet.env scripts/e2e.mjs",
+    "balances:local": "node --env-file=devnet.env scripts/balances.mjs"
   },
   "devDependencies": {
     "@foundry-rs/anvil": "1.7.1",
