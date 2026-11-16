@@ -191,7 +191,18 @@ contract TillTest is Test {
         assertTrue(_watching(deposit, UNI));
         assertTrue(_watching(deposit, SEP));
         assertEq(till.depositOf(id), deposit);
-        (bytes32 wid, address payTo, uint128 amount,,, uint8 chains, bool active) = till.watches(deposit);
+        (
+            bytes32 wid,
+            address payTo,
+            uint128 amount,,,
+            uint8 chains,
+            bool active,
+            uint64 watchedBlock,
+            uint64 seenBlock
+        ) = till.watches(deposit);
+        assertEq(watchedBlock, block.number);
+        assertEq(seenBlock, 0);
+        assertEq(book.getInvoice(id).createdBlock, block.number);
         assertEq(wid, id);
         assertEq(payTo, coldWallet);
         assertEq(amount, 250 * USDC);
@@ -203,6 +214,7 @@ contract TillTest is Test {
         (bytes32 id, address deposit) = _create(250 * USDC);
 
         vm.warp(block.timestamp + 1 hours);
+        vm.roll(block.number + 300);
         _pay(UNI, deposit, 250 * USDC); // a plain transfer on Unichain; the books are on Base
 
         InvoiceBook.Invoice memory inv = book.getInvoice(id);
@@ -211,6 +223,10 @@ contract TillTest is Test {
         assertEq(inv.payer, payer);
         assertEq(inv.paidOnChain, UNI);
         assertEq(inv.paidAt, block.timestamp);
+        assertEq(inv.paidBlock, block.number);
+        assertTrue(inv.payTxHash != bytes32(0), "the paying transaction is on record");
+        (,,,,,,,, uint64 seenBlock) = till.watches(deposit);
+        assertEq(seenBlock, block.number);
 
         assertEq(usdcOf[UNI].balanceOf(coldWallet), 250 * USDC, "money is in the cold wallet");
         assertEq(usdcOf[UNI].balanceOf(deposit), 0);
@@ -280,7 +296,7 @@ contract TillTest is Test {
         till.react(rec);
         vm.stopPrank();
 
-        (,,, uint128 received,,,) = till.watches(deposit);
+        (,,, uint128 received,,,,,) = till.watches(deposit);
         assertEq(received, 60 * USDC);
         assertEq(sys.totalCallbacks(), 2, "the second delivery requested nothing");
         assertEq(till.depositOf(id), deposit);
@@ -297,7 +313,7 @@ contract TillTest is Test {
         // And if it were delivered, Till checks the token itself.
         vm.prank(SYSTEM_ADDR);
         till.react(rec);
-        (,,, uint128 received,,,) = till.watches(deposit);
+        (,,, uint128 received,,,,,) = till.watches(deposit);
         assertEq(received, 0);
         assertEq(sys.totalCallbacks(), 0);
     }
@@ -675,6 +691,12 @@ contract TillTest is Test {
         (bytes32 id, address deposit) = _create(100 * USDC);
         usdcOf[UNI].mint(deposit, 100 * USDC);
 
+        // Measure as a fresh transaction would pay: nothing warm from the setup above.
+        vm.cool(address(book));
+        vm.cool(address(collectorOf[UNI]));
+        vm.cool(address(factory));
+        vm.cool(address(usdcOf[UNI]));
+
         vm.prank(address(proxyOf[HOME]));
         uint256 g = gasleft();
         book.recordPayment(address(till), id, UNI, payer, 100 * USDC, 1);
@@ -687,8 +709,8 @@ contract TillTest is Test {
 
         emit log_named_uint("recordPayment gas", recordGas);
         emit log_named_uint("sweep gas (first, deploys the forwarder)", sweepGas);
-        assertLt(recordGas, till.RECORD_GAS_LIMIT() - 150_000);
-        assertLt(sweepGas, till.SWEEP_GAS_LIMIT() - 150_000);
+        assertLt(recordGas, till.RECORD_GAS_LIMIT() - 200_000);
+        assertLt(sweepGas, till.SWEEP_GAS_LIMIT() - 200_000);
     }
 
     // ───────────────────────────── Fuzz: the books always add up ─────────────────────────────

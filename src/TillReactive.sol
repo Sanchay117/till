@@ -61,6 +61,8 @@ contract TillReactive is AbstractReactive {
         uint40 expiresAt;
         uint8 chains; // how many pay chains were subscribed when the watch began
         bool active; // subscriptions are live
+        uint64 watchedBlock; // Reactive block of the react() that began the watch
+        uint64 seenBlock; // Reactive block of the latest react() that counted a payment
     }
 
     uint256 private constant TRANSFER_TOPIC0 = uint256(keccak256("Transfer(address,address,uint256)"));
@@ -73,8 +75,10 @@ contract TillReactive is AbstractReactive {
     /// @dev Transfers smaller than amount / DUST_DIVISOR are ignored, so nobody can make Till pay for
     ///      callbacks by sending dust. Dust still reaches the seller on the next sweep.
     uint256 public constant DUST_DIVISOR = 100;
-    uint64 public constant RECORD_GAS_LIMIT = 300_000;
-    uint64 public constant SWEEP_GAS_LIMIT = 500_000;
+    /// @dev Callback gas limits. A callback proxy keeps up to about 200,000 of the limit for its own
+    ///      accounting (`_extraGas` + `_maxChargeGas`), so these leave room above what the calls use.
+    uint64 public constant RECORD_GAS_LIMIT = 400_000;
+    uint64 public constant SWEEP_GAS_LIMIT = 600_000;
 
     address public immutable OWNER;
 
@@ -176,7 +180,9 @@ contract TillReactive is AbstractReactive {
             received: 0,
             expiresAt: uint40(expiresAt),
             chains: uint8(chains),
-            active: true
+            active: true,
+            watchedBlock: uint64(block.number),
+            seenBlock: 0
         });
         depositOf[invoiceId] = depositAddress;
 
@@ -226,6 +232,7 @@ contract TillReactive is AbstractReactive {
         uint256 total = uint256(watch.received) + amount;
         if (total > type(uint128).max) total = type(uint128).max;
         watch.received = uint128(total);
+        watch.seenBlock = uint64(block.number);
 
         _requestRecord(watch.invoiceId, log_, amount);
         _requestSweep(log_.chainId, pc, watch);

@@ -27,18 +27,22 @@ contract InvoiceBook is AbstractCallback {
         Cancelled
     }
 
+    /// @dev Fields are ordered so they pack into as few storage slots as possible.
     struct Invoice {
         address seller; // who created the invoice
-        address payTo; // where the money is swept to, e.g. a cold wallet
-        address depositAddress; // where the payer sends tokens, on any supported chain
-        uint128 amount; // amount due, in token base units (USDC has 6 decimals)
-        uint128 received; // total seen so far, across all chains
         uint40 createdAt;
         uint40 expiresAt;
+        address payTo; // where the money is swept to, e.g. a cold wallet
         uint40 paidAt; // home-chain time of the callback that settled it
         Status status;
+        address depositAddress; // where the payer sends tokens, on any supported chain
+        uint64 createdBlock; // home-chain block it was created in, so clients can find the event directly
+        uint128 amount; // amount due, in token base units (USDC has 6 decimals)
+        uint128 received; // total seen so far, across all chains
         address payer; // sender of the payment that settled it
         uint64 paidOnChain; // chain id the settling payment landed on
+        uint64 paidBlock; // home-chain block of the callback that settled it
+        bytes32 payTxHash; // the settling payment's transaction hash on `paidOnChain`
         string memo;
     }
 
@@ -119,6 +123,7 @@ contract InvoiceBook is AbstractCallback {
         inv.depositAddress = depositAddress_;
         inv.amount = uint128(amount_);
         inv.createdAt = uint40(block.timestamp);
+        inv.createdBlock = uint64(block.number);
         inv.expiresAt = uint40(expiresAt_);
         inv.status = Status.Open;
         inv.memo = memo_;
@@ -166,8 +171,10 @@ contract InvoiceBook is AbstractCallback {
         if (inv.status != Status.Paid && total >= inv.amount) {
             inv.status = Status.Paid;
             inv.paidAt = uint40(block.timestamp);
+            inv.paidBlock = uint64(block.number);
             inv.payer = payer_;
             inv.paidOnChain = uint64(chainId_);
+            inv.payTxHash = bytes32(originTxHash_);
             emit InvoicePaid(id_, chainId_, payer_, total, bytes32(originTxHash_));
         }
     }
