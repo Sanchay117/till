@@ -16,7 +16,12 @@
     "local": "forge build && node --env-file=devnet.env scripts/local.mjs",
     "e2e:local": "node --env-file=devnet.env scripts/e2e.mjs",
     "balances:local": "node --env-file=devnet.env scripts/balances.mjs",
-    "bridge": "node --env-file=.env scripts/bridge.mjs"
+    "bridge": "node --env-file=.env scripts/bridge.mjs",
+    "demo:wallet": "node --env-file=.env scripts/demo-wallet.mjs",
+    "demo:wallet:local": "node --env-file=devnet.env scripts/demo-wallet.mjs",
+    "app": "npm run dev --prefix app",
+    "app:local": "npm run dev:local --prefix app",
+    "app:sync": "node app/scripts/sync.mjs"
   },
   "devDependencies": {
     "@foundry-rs/anvil": "1.7.1",

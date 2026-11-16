@@ -5,9 +5,9 @@
 Built for the [Reactive Omni Buildathon](https://dorahacks.io/hackathon/reactive-omni-buildathon/detail), track *Set It and Forget It*.
 
 > Status, 16 Nov 2026: live on Reactive Lasna, Base Sepolia, Unichain Sepolia and Ethereum Sepolia.
-> Five of five test invoices settled. Paid on Unichain, marked PAID on Base 1 to 2 seconds later by
-> block time (2.3 to 2.7 s as seen from a laptop). Five runs is a first sample, not a benchmark.
-> There is no web app yet; the loop runs from `npm run e2e`.
+> Nine of nine test invoices settled, paid on Unichain or on Base. Each was marked PAID on Base 1 to 2
+> seconds after the payment landed, by block timestamps. Nine runs is a first sample, not a benchmark.
+> The web app works against the testnets but only runs locally so far (`npm run app`); it is not hosted yet.
 
 ## Live on testnet
 
@@ -113,6 +113,22 @@ npm install
 ```bash
 npm test
 ```
+
+### Run the web app
+
+```bash
+npm install --prefix app
+```
+
+```bash
+npm run app
+```
+
+Open <http://localhost:5173>. The app reads the live testnet contracts, so invoice pages work straight
+away. **Watch one get paid** needs a demo wallet: `npm run demo:wallet` creates a second testnet-only key
+in `.env` and gives it a little test USDC from the deployer. That key stays on the server side
+([`app/server/demo.ts`](app/server/demo.ts)); it only pays invoices it created itself, for 0.10 test USDC,
+and those invoices pay it back.
 
 ### Run the whole loop locally, with no testnet coins
 

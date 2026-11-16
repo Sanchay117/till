@@ -1,0 +1,39 @@
+{
+  "name": "testnet",
+  "rpc": {},
+  "deployment": {
+    "reactive": {
+      "network": "lasna",
+      "chainId": 5318007,
+      "till": "0xc0605f77903922a466e1292f1fa7a0240f46e7dc",
+      "fromBlock": 8501820
+    },
+    "factory": "0x8C6835c46ceb6FC07624bC920af255091765dcB5",
+    "home": {
+      "network": "baseSepolia",
+      "chainId": 84532,
+      "invoiceBook": "0xfa222c8fc2af8ca27a23816f071449d08141a5a1",
+      "fromBlock": 59618151
+    },
+    "payChains": {
+      "baseSepolia": {
+        "chainId": 84532,
+        "usdc": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+        "collector": "0xc88a34d40a9b87700e3e81dc2c87fbdc3a97b6aa",
+        "fromBlock": 59618107
+      },
+      "unichainSepolia": {
+        "chainId": 1301,
+        "usdc": "0x31d0220469e10c4E71834a79b1f276d740d3768F",
+        "collector": "0xc88a34d40a9b87700e3e81dc2c87fbdc3a97b6aa",
+        "fromBlock": 67993065
+      },
+      "sepolia": {
+        "chainId": 11155111,
+        "usdc": "0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238",
+        "collector": "0x8e08a7577e67de4dd3230c5932fbe19281d43b9d",
+        "fromBlock": 12148423
+      }
+    }
+  }
+}
