@@ -29,3 +29,6 @@ HACKATHON.md
 
 # local Claude Code settings
 .claude/
+
+# demo video project: kept local, not in the repo
+video/
