@@ -26,3 +26,6 @@ deployments/local.json
 
 # private working notes: strategy, field review, risks
 HACKATHON.md
+
+# local Claude Code settings
+.claude/
