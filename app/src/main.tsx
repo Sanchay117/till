@@ -47,8 +47,9 @@ function App() {
 
       <footer className="bottom">
         <p>
-          The register and its dial are redrawn after U.S. Patent 221,360, “Cash Register and Indicator”, J. &amp; J. Ritty,
-          Dayton, Ohio, patented 4 November 1879. The patent is in the public domain.
+          The drawing shown is sheet 2 of U.S. Patent 221,360, “Cash Register and Indicator”, J. &amp; J. Ritty, Dayton,
+          Ohio, patented 4 November 1879, from Google Patents. It is in the public domain. The register and dial used
+          across this site are redrawn after it.
         </p>
         <p>Till runs on testnets: Reactive Lasna, Base Sepolia, Unichain Sepolia and Ethereum Sepolia. Built for the Reactive Omni Buildathon.</p>
       </footer>

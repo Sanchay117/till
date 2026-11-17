@@ -88,6 +88,11 @@ register of numbered wheels and a dial of cents. On every invoice page they show
 actually received, and the PAID plate drops in when it settles. The register and dial are redrawn in SVG
 after the patent, which is in the public domain.
 
+The home page also shows the original: sheet 2 of the patent, as served by Google Patents. The untouched
+scan is [`app/artefact/US221360-drawings-page-2.png`](app/artefact/US221360-drawings-page-2.png), and
+[`app/scripts/artefact.mjs`](app/scripts/artefact.mjs) trims the scanner's marks and writes the image the
+site uses.
+
 ## Contracts
 
 | Contract | Chain | Job |

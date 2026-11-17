@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { ChainTag } from '../components'
 import { HOME, INVOICE_BOOK, NETWORKS, PAY_CHAINS, REACTIVE, TILL, addressUrl } from '../config'
 import { getDemoInfo, startDemo } from '../demoApi'
+import patentSheet from '../assets/patent-221360-sheet-2.webp'
 import { clock, usdc } from '../format'
 import { Indicator } from '../Indicator'
 import { linkProps, navigate } from '../router'
@@ -137,21 +138,36 @@ export function Home() {
 
       <section className="story">
         <div className="story-inner">
-          <p className="eyebrow">Dayton, Ohio · 1879</p>
-          <h2>Somebody always had to watch the till.</h2>
-          <div className="story-cols">
+          <div className="story-text">
+            <p className="eyebrow">Dayton, Ohio · 1879</p>
+            <h2>Somebody always had to watch the till.</h2>
             <p>
               James Ritty kept a saloon and suspected his bartenders of pocketing the takings. On a steamship to Europe he
               watched a device count the turns of the propeller. He came home and built one that counted sales, patented it
               on 4 November 1879, and called it the <em>Incorruptible Cashier</em>. The point was never the drawer. It was
               that nobody had to be trusted to watch it.
             </p>
-            <p>
+            <p className="flip">
               Getting paid in stablecoins still has a watcher: a server with a key online, a bridge, or you with five block
               explorers open. Till takes the watcher out. One contract on Reactive Network hears the transfer land, on
               whichever chain, and does the rest.
             </p>
           </div>
+          <figure className="sheet">
+            <img
+              src={patentSheet}
+              width={880}
+              height={1376}
+              // Fetched up front but behind everything the first screen needs, so it is on the sheet
+              // by the time anyone scrolls to it.
+              fetchPriority="low"
+              decoding="async"
+              alt="Sheet 2 of U.S. Patent 221,360: engraved drawings of the Rittys' cash register, with a row of numbered wheels at the top and a dial numbered in fives below, signed by the inventors and two witnesses."
+            />
+            <figcaption>
+              Sheet 2 of U.S. Patent 221,360, 4 November 1879. Fig. 3 shows the numbered wheels, Fig. 4 the dial.
+            </figcaption>
+          </figure>
         </div>
       </section>
 
