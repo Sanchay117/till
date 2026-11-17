@@ -1,5 +1,6 @@
 // The demo wallet: a server-side account holding a little test USDC, so a visitor with no wallet can
-// watch a real payment settle. Runs only in /api functions; the key never reaches the browser.
+// watch a real payment settle. Runs only on the server (see handler.ts); the key never reaches the
+// browser.
 //
 // What keeps it from being drained or abused:
 //   - It only pays invoices it created itself, for one fixed small amount, and those invoices pay
@@ -133,16 +134,5 @@ export async function payDemoInvoice(id: Hex, networkKey: NetworkKey): Promise<{
     return { tx, network: networkKey }
   } finally {
     setTimeout(() => paying.delete(id), 30_000)
-  }
-}
-
-/** Turns a handler's result or error into a JSON response. */
-export async function respond(work: () => Promise<unknown>): Promise<Response> {
-  try {
-    return Response.json(await work(), { headers: { 'cache-control': 'no-store' } })
-  } catch (error) {
-    if (error instanceof DemoError) return Response.json({ error: error.message }, { status: error.status })
-    console.error(error)
-    return Response.json({ error: 'The demo service hit an error. Try again.' }, { status: 500 })
   }
 }

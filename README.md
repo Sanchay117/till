@@ -145,6 +145,20 @@ in `.env` and gives it a little test USDC from the deployer. That key stays on t
 ([`app/server/demo.ts`](app/server/demo.ts)); it only pays invoices it created itself, for 0.10 test USDC,
 and those invoices pay it back.
 
+### Host the web app
+
+The site is static files plus one small function for the demo wallet.
+
+- **Vercel:** import the repo, set the root directory to `app`, and add `DEMO_PRIVATE_KEY` as an
+  environment variable. [`app/vercel.json`](app/vercel.json) does the rest. The function is
+  [`app/api/demo/[action].js`](app/api/demo), a single self-contained file bundled from
+  [`app/server/handler.ts`](app/server/handler.ts) by `npm run build:api` and committed, so the host has
+  nothing to compile or resolve.
+- **Anything that runs Node:** `npm run build && npm start` in `app/` serves the same built files and the
+  same function from one process ([`app/scripts/serve.mjs`](app/scripts/serve.mjs)).
+
+Only the demo wallet's key goes on the host. The deployer key owns the contracts and stays on your machine.
+
 ### Run the whole loop locally, with no testnet coins
 
 ```bash
