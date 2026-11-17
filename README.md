@@ -2,12 +2,15 @@
 
 **An invoice that marks itself paid, whichever chain the money lands on.**
 
+**Try it: <https://till-theta.vercel.app>.** No wallet, no sign-up. Press *Watch one get paid* and a
+demo wallet pays a real invoice with test USDC while you watch every transaction land.
+
 Built for the [Reactive Omni Buildathon](https://dorahacks.io/hackathon/reactive-omni-buildathon/detail), track *Set It and Forget It*.
 
-> Status, 16 Nov 2026: live on Reactive Lasna, Base Sepolia, Unichain Sepolia and Ethereum Sepolia.
-> Nine of nine test invoices settled, paid on Unichain or on Base. Each was marked PAID on Base 1 to 2
-> seconds after the payment landed, by block timestamps. Nine runs is a first sample, not a benchmark.
-> The web app works against the testnets but only runs locally so far (`npm run app`); it is not hosted yet.
+> Status, 17 Nov 2026: live on Reactive Lasna, Base Sepolia, Unichain Sepolia and Ethereum Sepolia.
+> Every test invoice that has been paid has settled: 12 so far, 11 paid on Unichain and 1 on Base itself.
+> Each was marked PAID on Base 1 or 2 seconds after the payment landed, by block timestamps, which are
+> whole seconds. Twelve runs is a first sample, not a benchmark.
 
 ## Live on testnet
 
@@ -118,7 +121,7 @@ Details worth knowing:
 Needs Node 20.6 or newer and git. Foundry comes in through npm, so there is nothing else to install.
 
 ```bash
-git clone --recurse-submodules <this repo> && cd <this repo>
+git clone --recurse-submodules https://github.com/Sanchay117/till.git && cd till
 ```
 
 ```bash
