@@ -2,8 +2,12 @@
 
 **An invoice that marks itself paid, whichever chain the money lands on.**
 
-**Try it: <https://till-theta.vercel.app>.** No wallet, no sign-up. Press *Watch one get paid* and a
-demo wallet pays a real invoice with test USDC while you watch every transaction land.
+**[Try it live: till-theta.vercel.app](https://till-theta.vercel.app)** · **[Watch the demo](https://youtu.be/ZL7I8KaX7Jg)** (2:40)
+
+No wallet, no sign-up. Press *Watch one get paid* and a demo wallet pays a real invoice with test USDC
+while you watch every transaction land.
+
+[![Watch the demo: Till, an invoice that marks itself paid](https://img.youtube.com/vi/ZL7I8KaX7Jg/hqdefault.jpg)](https://youtu.be/ZL7I8KaX7Jg)
 
 Built for the [Reactive Omni Buildathon](https://dorahacks.io/hackathon/reactive-omni-buildathon/detail), track *Set It and Forget It*.
 
