@@ -10,7 +10,7 @@ import { createWalletClient, http, parseEventLogs, parseUnits, type Address, typ
 import { privateKeyToAccount } from 'viem/accounts'
 import { STATUS, bookAbi, erc20Abi, tillAbi } from '../src/abi'
 import { chain, client } from '../src/clients'
-import { HOME, INVOICE_BOOK, NETWORKS, PAY_CHAINS, REACTIVE, TILL, payChain, type NetworkKey } from '../src/config'
+import { HOME, INVOICE_BOOK, NETWORKS, REACTIVE, TILL, payChain, type NetworkKey } from '../src/config'
 
 export const DEMO_AMOUNT = parseUnits('0.10', 6)
 const INVOICE_LIFETIME = 20 * 60 // seconds a demo invoice stays open
@@ -43,19 +43,14 @@ async function invoice(id: Hex) {
   return home().readContract({ address: INVOICE_BOOK, abi: bookAbi, functionName: 'getInvoice', args: [id] })
 }
 
-/** What the browser needs to decide whether to offer the demo, and on which chains. */
+/**
+ * What the browser needs to decide whether to offer the demo. It reads no chain, so it answers at
+ * once: the home page waits on this before it can show the last sale.
+ */
 export async function demoInfo() {
   const account = demoAccount()
   if (!account) return { enabled: false as const }
-  const chains = await Promise.all(
-    PAY_CHAINS.map(async ({ network, usdc }) => {
-      const balance = await client(network.key)
-        .readContract({ address: usdc, abi: erc20Abi, functionName: 'balanceOf', args: [account.address] })
-        .catch(() => 0n)
-      return { key: network.key, name: network.name, funded: balance >= DEMO_AMOUNT }
-    }),
-  )
-  return { enabled: true as const, address: account.address, amount: DEMO_AMOUNT.toString(), chains }
+  return { enabled: true as const, address: account.address, amount: DEMO_AMOUNT.toString() }
 }
 
 /** Returns an unpaid demo invoice if there is one with time left, otherwise creates a new one. */

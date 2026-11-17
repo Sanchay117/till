@@ -1,6 +1,13 @@
+import '@fontsource-variable/besley'
+import '@fontsource/old-standard-tt/400.css'
+import '@fontsource/old-standard-tt/400-italic.css'
+import '@fontsource/old-standard-tt/700.css'
+import '@fontsource/ibm-plex-mono/400.css'
+import '@fontsource/ibm-plex-mono/500.css'
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { IS_LOCAL } from './config'
+import { Mark } from './Indicator'
 import { Home } from './pages/Home'
 import { InvoicePage } from './pages/InvoicePage'
 import { NewInvoice } from './pages/NewInvoice'
@@ -13,10 +20,11 @@ function App() {
     <>
       <header className="top">
         <a className="brand" {...linkProps('/')}>
-          <span className="brand-mark" aria-hidden="true" />
+          <Mark />
           Till
         </a>
         <nav>
+          <span className="testnet">Testnet</span>
           <a {...linkProps('/new')}>New invoice</a>
         </nav>
       </header>
@@ -30,7 +38,7 @@ function App() {
         <main className="page narrow">
           <div className="receipt">
             <h1 className="h2">Nothing here</h1>
-            <a className="button" {...linkProps('/')}>
+            <a className="key" {...linkProps('/')}>
               Back to the start
             </a>
           </div>
@@ -39,9 +47,10 @@ function App() {
 
       <footer className="bottom">
         <p>
-          Till runs on testnets: Reactive Lasna, Base Sepolia, Unichain Sepolia and Ethereum Sepolia. Built for the
-          Reactive Omni Buildathon.
+          The register and its dial are redrawn after U.S. Patent 221,360, “Cash Register and Indicator”, J. &amp; J. Ritty,
+          Dayton, Ohio, patented 4 November 1879. The patent is in the public domain.
         </p>
+        <p>Till runs on testnets: Reactive Lasna, Base Sepolia, Unichain Sepolia and Ethereum Sepolia. Built for the Reactive Omni Buildathon.</p>
       </footer>
     </>
   )

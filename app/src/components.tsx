@@ -9,7 +9,7 @@ export function CopyButton({ text, label = 'Copy' }: { text: string; label?: str
   return (
     <button
       type="button"
-      className="button small quiet"
+      className="key small plain"
       onClick={async () => {
         await navigator.clipboard.writeText(text).catch(() => undefined)
         setCopied(true)
@@ -81,7 +81,9 @@ export function Timeline({ view }: { view: InvoiceView }) {
         // A demo payment's hash is known before it is in a block. Until then it has not "landed".
         const confirming = key === 'payment' && Boolean(step.tx) && step.time === undefined
         const done = Boolean(step.tx) && !confirming
-        const current = (live && key === firstPending) || confirming
+        // The sweep's block is not recorded on-chain, so it is searched for, and the search can end empty.
+        const gaveUp = key === 'swept' && !step.tx && view.sweepSearchDone
+        const current = !gaveUp && ((live && key === firstPending) || confirming)
         const url = step.tx && step.network ? txUrl(step.network, step.tx) : undefined
         // Times are shown relative to the payment, since that is the moment the clock starts.
         let when = ''
@@ -107,7 +109,11 @@ export function Timeline({ view }: { view: InvoiceView }) {
                 ) : (
                   <span className="tx">{shortHash(step.tx!)}</span>
                 ))}
-              {!done && <span className="tx waiting">{confirming ? 'confirming…' : current ? 'waiting…' : 'not yet'}</span>}
+              {!done && (
+                <span className="tx waiting">
+                  {gaveUp ? 'not found nearby' : confirming ? 'confirming…' : current ? 'waiting…' : 'not yet'}
+                </span>
+              )}
             </div>
           </li>
         )

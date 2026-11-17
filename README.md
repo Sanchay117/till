@@ -78,6 +78,16 @@ gap is filled by a bridge or by a server holding a key. Here it is filled by one
                                      unsubscribe
 ```
 
+## Why it looks like a patent from 1879
+
+A till is a cash drawer. The cash register was patented on 4 November 1879 by James and John Ritty of
+Dayton, Ohio, as U.S. Patent 221,360, "Cash Register and Indicator". James Ritty kept a saloon and built
+the machine so he no longer had to trust whoever stood at the drawer; he sold it as the *Incorruptible
+Cashier*. Till takes the same watcher out of an invoice, so the app is drawn from that patent sheet: a
+register of numbered wheels and a dial of cents. On every invoice page they show what the invoice has
+actually received, and the PAID plate drops in when it settles. The register and dial are redrawn in SVG
+after the patent, which is in the public domain.
+
 ## Contracts
 
 | Contract | Chain | Job |

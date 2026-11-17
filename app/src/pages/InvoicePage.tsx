@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react'
 import type { Hex } from 'viem'
 import { ChainTag, CopyButton, Qr, Timeline } from '../components'
 import { HOME, NETWORKS, PAY_CHAINS, addressUrl, type NetworkKey } from '../config'
-import { getDemoInfo, payDemo, startDemo, type DemoInfo } from '../demoApi'
+import { demoChains, getDemoInfo, payDemo, startDemo, type DemoInfo } from '../demoApi'
 import { seconds, shortAddress, timeLeft, usdc } from '../format'
 import { useInvoice, useNow } from '../hooks'
+import { Indicator, Mark } from '../Indicator'
 import type { InvoiceView } from '../invoice'
 import { linkProps, navigate } from '../router'
 
@@ -29,6 +30,7 @@ export function InvoicePage({ id }: { id: Hex }) {
     return (
       <main className="page narrow">
         <div className="receipt loading" aria-busy="true">
+          <Mark ticking className="large" />
           <p className="muted">Looking up this invoice on {NETWORKS[HOME].name}…</p>
         </div>
       </main>
@@ -38,9 +40,9 @@ export function InvoicePage({ id }: { id: Hex }) {
     return (
       <main className="page narrow">
         <div className="receipt">
-          <h1 className="h2">No invoice with this id</h1>
-          <p className="muted">Check the link, or create a new one.</p>
-          <a className="button" {...linkProps('/')}>
+          <h1 className="h2">No invoice with this number</h1>
+          <p className="muted">Check the link, or start again.</p>
+          <a className="key" {...linkProps('/')}>
             Back to the start
           </a>
         </div>
@@ -60,27 +62,32 @@ export function InvoicePage({ id }: { id: Hex }) {
       <article className={`receipt state-${state}`}>
         <header className="receipt-head">
           <span className="eyebrow">Invoice</span>
-          <span className="mono muted">{id.slice(0, 10)}</span>
+          <span className="mono muted">No. {id.slice(2, 10)}</span>
         </header>
 
-        {invoice.memo && <p className="memo">{invoice.memo}</p>}
-
-        <p className="amount">
-          <span className="figure">{usdc(invoice.amount)}</span> <span className="unit">USDC</span>
-        </p>
-
-        <p className={`status status-${state}`} role="status">
-          <span className="status-dot" aria-hidden="true" />
-          {STATE_TEXT[state]}
-          {state === 'partly' && `: ${usdc(invoice.received)} of ${usdc(invoice.amount)} received`}
-          {(state === 'open' || state === 'partly') && <span className="muted"> · {timeLeft(invoice.expiresAt)}</span>}
-        </p>
+        <div className="receipt-top">
+          <div className="receipt-sum">
+            {invoice.memo && <p className="memo">{invoice.memo}</p>}
+            <p className="amount">
+              <span className="figure">{usdc(invoice.amount)}</span> <span className="unit">USDC</span>
+            </p>
+            <p className={`status status-${state}`} role="status">
+              {STATE_TEXT[state]}
+              {state === 'partly' && `: ${usdc(invoice.received)} of ${usdc(invoice.amount)} received`}
+              {(state === 'open' || state === 'partly') && <span className="muted"> · {timeLeft(invoice.expiresAt)}</span>}
+            </p>
+          </div>
+          <Indicator
+            className="small"
+            amount={invoice.received}
+            paid={state === 'paid'}
+            watching={view.watching}
+            label={`The register shows ${usdc(invoice.received)} USDC received. ${STATE_TEXT[state]}.`}
+          />
+        </div>
 
         {state === 'paid' && (
           <div className="paid-block">
-            <span className="stamp" aria-hidden="true">
-              Paid
-            </span>
             <p>
               {paidOn ? (
                 <>
@@ -104,14 +111,19 @@ export function InvoicePage({ id }: { id: Hex }) {
 
         {(state === 'open' || state === 'partly') && !ready && (
           <div className="notice">
-            <span className="spinner" aria-hidden="true" />
+            <Mark ticking />
             Reactive is starting to watch this invoice's address. This takes a couple of seconds.
           </div>
         )}
 
+        {/* On a demo invoice the next click is the demo wallet, so it comes first and stays above the fold. */}
+        {payable && isDemo && demo.enabled && (
+          <DemoPay id={id} demo={demo} onSent={hintPayment} sent={Boolean(steps.payment.tx)} />
+        )}
+
         {payable && (
           <section className="pay">
-            <h2 className="h3">Pay this invoice</h2>
+            <h2 className="h3">{isDemo ? 'Or pay it yourself' : 'Pay this invoice'}</h2>
             <p>
               Send <strong>{usdc(remaining)} USDC</strong> to this address on any of these chains:
             </p>
@@ -133,7 +145,6 @@ export function InvoicePage({ id }: { id: Hex }) {
                 </p>
               </div>
             </div>
-            {isDemo && demo.enabled && <DemoPay id={id} demo={demo} onSent={hintPayment} sent={Boolean(steps.payment.tx)} />}
           </section>
         )}
 
@@ -173,7 +184,7 @@ export function InvoicePage({ id }: { id: Hex }) {
       {state === 'paid' && (
         <div className="after">
           {isDemo && <RunAgain />}
-          <a className="button quiet" {...linkProps('/new')}>
+          <a className="key plain" {...linkProps('/new')}>
             Create your own invoice
           </a>
         </div>
@@ -203,7 +214,11 @@ function DemoPay({
 }) {
   const [busy, setBusy] = useState<NetworkKey | null>(null)
   const [error, setError] = useState('')
-  const funded = demo.chains.filter((c) => c.funded)
+  const [funded, setFunded] = useState<NetworkKey[] | null>(null)
+
+  useEffect(() => {
+    void demoChains(demo).then(setFunded)
+  }, [demo])
 
   async function pay(network: NetworkKey) {
     setBusy(network)
@@ -219,16 +234,16 @@ function DemoPay({
 
   if (sent) {
     return (
-      <div className="demo">
-        <span className="spinner" aria-hidden="true" />
-        Payment sent from the demo wallet. Watch the steps below.
+      <div className="demo working">
+        <Mark ticking />
+        Payment sent from the demo wallet. Watch the register.
       </div>
     )
   }
   if (busy) {
     return (
-      <div className="demo">
-        <span className="spinner" aria-hidden="true" />
+      <div className="demo working">
+        <Mark ticking />
         Sending {usdc(BigInt(demo.amount))} test USDC from the demo wallet on {NETWORKS[busy].name}…
       </div>
     )
@@ -236,15 +251,16 @@ function DemoPay({
   return (
     <div className="demo">
       <h3 className="h4">No wallet? Use the demo wallet.</h3>
-      <p className="fine">It sends {usdc(BigInt(demo.amount))} test USDC to the address above, exactly as any payer would. Pick the chain:</p>
+      <p className="fine">It sends {usdc(BigInt(demo.amount))} test USDC to this invoice's address, exactly as any payer would. Pick the chain:</p>
       <div className="row">
-        {funded.map((c) => (
-          <button key={c.key} type="button" className={c.key === HOME ? 'button quiet' : 'button'} onClick={() => pay(c.key)}>
-            Pay on {c.name}
+        {funded === null && <Mark ticking />}
+        {funded?.map((key) => (
+          <button key={key} type="button" className={key === HOME ? 'key plain' : 'key'} onClick={() => pay(key)}>
+            Pay on {NETWORKS[key].name}
           </button>
         ))}
       </div>
-      {funded.length === 0 && <p className="error">The demo wallet is out of test USDC right now.</p>}
+      {funded?.length === 0 && <p className="error">The demo wallet is out of test USDC right now.</p>}
       {error && <p className="error">{error}</p>}
     </div>
   )
@@ -257,7 +273,7 @@ function RunAgain() {
     <>
       <button
         type="button"
-        className="button"
+        className="key"
         disabled={busy}
         onClick={async () => {
           setBusy(true)

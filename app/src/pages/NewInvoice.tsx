@@ -88,14 +88,14 @@ export function NewInvoice() {
               MetaMask with a little test ETH there.
             </p>
             <p className="muted">Your client will not need one. They can pay from any wallet or exchange.</p>
-            <a className="button" {...linkProps('/')}>
+            <a className="key" {...linkProps('/')}>
               Watch the demo instead
             </a>
           </>
         ) : !account ? (
           <>
             <p>Connect the wallet that will own this invoice. Creating it is one transaction on {NETWORKS[HOME].name}.</p>
-            <button type="button" className="button" onClick={onConnect}>
+            <button type="button" className="key" onClick={onConnect}>
               Connect wallet
             </button>
             {error && <p className="error">{error}</p>}
@@ -133,7 +133,7 @@ export function NewInvoice() {
                 ))}
               </div>
             </fieldset>
-            <button type="submit" className="button big" disabled={Boolean(busy) || Boolean(problem)}>
+            <button type="submit" className="key big" disabled={Boolean(busy) || Boolean(problem)}>
               {busy || 'Create invoice'}
             </button>
             {problem && amount && <p className="fine">{problem}</p>}

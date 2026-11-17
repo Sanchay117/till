@@ -1,40 +1,33 @@
-/* Till looks like what it is: a paper receipt on a counter. Ink, paper, one green for "paid". */
+/*
+  Till's look comes from one object: sheet 2 of U.S. Patent 221,360, "Cash Register and Indicator",
+  J. & J. Ritty, 4 November 1879. Black lithograph ink on a paper sheet, figures labelled in italic,
+  a dial of cents. Everything below is named after that world so nothing generic sneaks in.
+*/
 
 :root {
-  --paper: #f3eee4;
-  --card: #fffdf8;
-  --ink: #17130f;
-  --muted: #675e53;
-  --line: #dcd3c2;
-  --soft: #ece5d7;
-  --paid: #1a7541;
-  --paid-soft: #e1f0e5;
-  --wait: #8f5b00;
-  --wait-soft: #f7ebd1;
-  --bad: #a3322a;
-  --shadow: 0 1px 2px rgb(40 30 15 / 6%), 0 12px 32px rgb(40 30 15 / 8%);
+  color-scheme: light;
 
-  --mono: ui-monospace, "SF Mono", "Cascadia Mono", "Segoe UI Mono", Consolas, "Liberation Mono", monospace;
-  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
-  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
-  --gutter: 20px;
-}
+  --paper: #efe6d3; /* the patent sheet */
+  --paper-lit: #f8f1e2; /* a fresh sheet: the receipt, cards */
+  --paper-worn: #e3d7be; /* a foxed edge: insets */
+  --ink: #1b1612; /* lithograph black */
+  --ink-soft: #5a5045; /* the same ink, thinned */
+  --rule: rgb(27 22 18 / 22%); /* a ruled line */
+  --brass: #a4762a; /* the register's casing: waiting, ornament */
+  --brass-deep: #76520f; /* brass in shadow: small text */
+  --brass-lit: #f2e4c2; /* brass catching the light */
+  --greenback: #1e5c3d; /* paid */
+  --greenback-wash: #dbe7d4;
+  --walnut: #2a1f17; /* the cabinet */
+  --oxblood: #8c2f23; /* red ink: something is wrong */
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #12100d;
-    --card: #1d1915;
-    --ink: #f2ebdf;
-    --muted: #a69d8f;
-    --line: #372f27;
-    --soft: #28221c;
-    --paid: #5acb8d;
-    --paid-soft: #16301f;
-    --wait: #e3ad52;
-    --wait-soft: #33280f;
-    --bad: #f0897f;
-    --shadow: 0 1px 2px rgb(0 0 0 / 30%), 0 12px 32px rgb(0 0 0 / 35%);
-  }
+  --display: "Besley Variable", Clarendon, Georgia, serif; /* a Clarendon, the shop-sign face of the 1870s */
+  --text: "Old Standard TT", "Iowan Old Style", Georgia, serif; /* reads like the patent's own text */
+  --data: "IBM Plex Mono", ui-monospace, Consolas, monospace; /* amounts, hashes, labels */
+
+  --gutter: 28px;
+  --measure: 1180px;
+  --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .1  0 0 0 0 .08  0 0 0 0 .06  0 0 0 .1 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
 *,
@@ -49,18 +42,16 @@ html {
 
 body {
   margin: 0;
-  background: var(--paper);
+  background: var(--paper) var(--grain);
   color: var(--ink);
-  font: 16px/1.55 var(--sans);
+  font: 400 18px/1.6 var(--text);
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
 #root {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  min-height: 100vh;
 }
 
 h1,
@@ -70,7 +61,8 @@ p,
 ol,
 ul,
 dl,
-dd {
+dd,
+figure {
   margin: 0;
 }
 
@@ -82,35 +74,110 @@ a {
 
 :focus-visible {
   outline: 2px solid var(--ink);
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline-offset: 3px;
+  border-radius: 3px;
 }
 
 .mono,
 code {
-  font-family: var(--mono);
-  font-size: 0.92em;
+  font-family: var(--data);
+  font-size: 0.8em;
 }
 .muted {
-  color: var(--muted);
+  color: var(--ink-soft);
 }
 .fine {
-  color: var(--muted);
-  font-size: 0.875rem;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  font-style: italic;
   line-height: 1.5;
 }
 .center {
   text-align: center;
 }
 .error {
-  color: var(--bad);
-  font-size: 0.925rem;
+  color: var(--oxblood);
+  font-size: 0.95rem;
 }
 .row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 14px;
   align-items: center;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* A small label in the data face: the caps printed along the edge of a form. */
+.eyebrow,
+.h3,
+.caption-label,
+.strip dt,
+.testnet,
+th {
+  font: 500 0.7rem/1.3 var(--data);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ── Keys: buttons are register keys. They sit proud of the sheet and go down when pressed. ── */
+
+.key {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  padding: 12px 20px;
+  border: 1.5px solid var(--ink);
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--paper-lit);
+  font: 500 0.78rem/1.2 var(--data);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 0 var(--brass);
+  transition: transform 70ms ease-out, box-shadow 70ms ease-out;
+}
+.key:hover:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 3px 0 var(--brass);
+}
+.key:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 var(--brass);
+}
+.key:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.key.plain {
+  background: var(--paper-lit);
+  color: var(--ink);
+  box-shadow: 0 4px 0 var(--rule);
+}
+.key.plain:hover:not(:disabled) {
+  box-shadow: 0 3px 0 var(--rule);
+}
+.key.plain:active:not(:disabled) {
+  box-shadow: 0 0 0 var(--rule);
+}
+.key.big {
+  padding: 17px 26px;
+  font-size: 0.86rem;
+}
+.key.small {
+  padding: 7px 13px;
+  font-size: 0.68rem;
+  box-shadow: 0 2px 0 var(--rule);
 }
 
 /* ── Frame ── */
@@ -120,277 +187,625 @@ code {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  max-width: 980px;
+  max-width: var(--measure);
   margin: 0 auto;
-  padding: 18px var(--gutter);
+  padding: 20px var(--gutter);
 }
 .brand {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
-  font: 700 1.3rem/1 var(--serif);
-  text-decoration: none;
+  gap: 10px;
+  font: 800 1.7rem/1 var(--display);
   letter-spacing: -0.01em;
+  text-decoration: none;
 }
-.brand-mark {
-  width: 18px;
-  height: 22px;
-  background: var(--ink);
-  /* a little receipt with a toothed bottom edge */
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 83% 86%, 66% 100%, 50% 86%, 33% 100%, 17% 86%, 0 100%);
+.top nav {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font: 500 0.74rem var(--data);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
-.top nav a {
-  font-weight: 600;
-  font-size: 0.95rem;
+.testnet {
+  padding: 3px 8px;
+  border: 1px solid var(--brass);
+  border-radius: 3px;
+  color: var(--brass-deep);
+  letter-spacing: 0.14em;
 }
-
 .banner {
-  background: var(--wait-soft);
-  color: var(--wait);
+  background: var(--brass-lit);
+  color: var(--brass-deep);
   text-align: center;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   padding: 6px var(--gutter);
 }
-
 .page {
   width: 100%;
-  max-width: 980px;
+  max-width: var(--measure);
   margin: 0 auto;
-  padding: 12px var(--gutter) 56px;
+  padding: 8px var(--gutter) 64px;
   flex: 1;
 }
 .page.narrow {
-  max-width: 640px;
+  max-width: 700px;
 }
-
+.home {
+  flex: 1;
+}
 .bottom {
-  border-top: 1px solid var(--line);
-  padding: 20px var(--gutter) 28px;
+  border-top: 3px double var(--ink);
+  padding: 24px var(--gutter) 34px;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  font-style: italic;
+  display: grid;
+  gap: 6px;
+  justify-items: center;
   text-align: center;
-  color: var(--muted);
-  font-size: 0.85rem;
 }
 .bottom p {
-  max-width: 60ch;
-  margin: 0 auto;
+  max-width: 78ch;
 }
 
-/* ── Buttons ── */
+/* ── The mark: the dial alone. Logo, favicon, and with .is-ticking the loading spinner. ── */
 
-.button {
-  appearance: none;
+.mark {
+  width: 1.1em;
+  height: 1.1em;
+  flex: none;
+}
+.mark.large {
+  width: 44px;
+  height: 44px;
+}
+.mark-ring {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+}
+.mark-hub {
+  fill: currentColor;
+}
+.mark-hand {
+  transform-origin: 16px 16px;
+  transform: rotate(36deg);
+}
+/* A hand that ticks round in twelve steps, like a mechanism, where a spinner would glide. */
+.mark.is-ticking .mark-hand {
+  animation: mark-tick 1.2s steps(12) infinite;
+}
+@keyframes mark-tick {
+  to {
+    transform: rotate(396deg);
+  }
+}
+
+/* ── The register and its indicator ── */
+
+.indicator {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.indicator .line {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1.3;
+}
+.indicator .line.heavy {
+  stroke-width: 2.6;
+}
+.indicator .tick {
+  stroke: var(--ink);
+  stroke-width: 0.8;
+}
+.indicator .tick.major {
+  stroke-width: 1.6;
+}
+.indicator .numeral {
+  font: 600 12.5px var(--display);
+  fill: var(--ink);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.indicator .fig {
+  font: italic 400 15px var(--text);
+  fill: var(--ink-soft);
+}
+.indicator .caption {
+  font: 500 8.5px var(--data);
+  letter-spacing: 0.26em;
+  fill: var(--ink-soft);
+  text-anchor: middle;
+}
+.indicator .wheel {
+  fill: var(--paper-lit);
+  stroke: var(--ink);
+  stroke-width: 1;
+}
+.indicator .wheel-digit {
+  font: 700 31px var(--display);
+  fill: var(--ink);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+/* Wheels roll to their digit and settle, lowest digit first. */
+.indicator .wheel-strip {
+  transition: transform 900ms cubic-bezier(0.3, 1.25, 0.4, 1);
+}
+.indicator .solid {
+  fill: var(--ink);
+}
+.indicator .hub {
+  fill: var(--paper-lit);
+  stroke: var(--ink);
+  stroke-width: 1.6;
+}
+/* The hand is thrown round the dial and overshoots before it comes to rest. */
+.indicator .hand {
+  transition: transform 1150ms cubic-bezier(0.34, 1.42, 0.5, 1);
+}
+/* While Till is watching, the hand twitches once every few seconds. It is felt more than seen. */
+.indicator.is-watching .hand-tick {
+  animation: hand-tick 3.2s steps(1) infinite;
+}
+@keyframes hand-tick {
+  0%,
+  92% {
+    transform: rotate(0deg);
+  }
+  93%,
+  100% {
+    transform: rotate(1.5deg);
+  }
+}
+.indicator .plate-slot {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 1;
+  stroke-dasharray: 3 4;
+  opacity: 0.5;
+}
+.indicator .plate-idle {
+  font: 500 12px var(--data);
+  letter-spacing: 0.32em;
+  fill: var(--ink-soft);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+.indicator .plate-face {
+  fill: var(--greenback);
+}
+.indicator .plate-screw {
+  fill: var(--paper-lit);
+  opacity: 0.75;
+}
+.indicator .plate-word {
+  font: 900 25px var(--display);
+  letter-spacing: 0.22em;
+  fill: var(--paper-lit);
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+/* The PAID plate drops into its slot just after the hand lands, and the whole machine takes the knock. */
+.indicator .plate-paid {
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+}
+.indicator.is-paid .plate-paid {
+  animation: plate-drop 520ms 820ms cubic-bezier(0.3, 1.5, 0.5, 1) both;
+}
+.indicator.is-paid .plate-idle {
+  opacity: 0;
+  transition: opacity 80ms 820ms;
+}
+.indicator.is-paid {
+  animation: knock 280ms 1180ms ease-out;
+}
+@keyframes plate-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-42px) scaleY(0.7);
+  }
+  55% {
+    opacity: 1;
+    transform: translateY(3px) scaleY(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes knock {
+  30% {
+    transform: translateY(2.5px);
+  }
+  65% {
+    transform: translateY(-1px);
+  }
+}
+
+/* At receipt size the drawing's fine print turns to noise, so it is left off and the lines thicken. */
+.indicator.small .numeral,
+.indicator.small .fig,
+.indicator.small .caption,
+.indicator.small .tick:not(.major) {
+  display: none;
+}
+.indicator.small .line {
+  stroke-width: 2.2;
+}
+.indicator.small .line.heavy {
+  stroke-width: 4;
+}
+.indicator.small .tick.major {
+  stroke-width: 2.6;
+}
+.indicator.small .plate-idle {
+  font-size: 16px;
+  letter-spacing: 0.2em;
+}
+
+/* ── Home: hero ── */
+
+.hero,
+.strip,
+.figs,
+.tape,
+.close,
+.story-inner {
+  width: 100%;
+  max-width: var(--measure);
+  margin: 0 auto;
+  padding-left: var(--gutter);
+  padding-right: var(--gutter);
+}
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  gap: 24px 56px;
+  align-items: center;
+  padding-top: 14px;
+  padding-bottom: 44px;
+}
+.hero-copy {
+  display: grid;
+  gap: 22px;
+  justify-items: start;
+}
+.eyebrow {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 16px;
-  border: 1.5px solid var(--ink);
-  border-radius: 9px;
-  background: var(--ink);
-  color: var(--card);
-  font: 600 0.975rem/1.2 var(--sans);
-  text-decoration: none;
-  cursor: pointer;
-  transition: transform 0.08s ease, opacity 0.15s ease;
+  gap: 10px;
+  color: var(--ink-soft);
 }
-.button:hover:not(:disabled) {
-  opacity: 0.88;
-}
-.button:active:not(:disabled) {
-  transform: translateY(1px);
-}
-.button:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-.button.quiet {
-  background: transparent;
-  color: var(--ink);
-  border-color: var(--line);
-}
-.button.quiet:hover:not(:disabled) {
-  opacity: 1;
-  border-color: var(--ink);
-}
-.button.big {
-  padding: 14px 22px;
-  font-size: 1.05rem;
-  border-radius: 11px;
-}
-.button.small {
-  padding: 6px 11px;
-  font-size: 0.85rem;
-  border-radius: 7px;
-}
-
-/* ── Home ── */
-
-.hero {
-  padding: 36px 0 44px;
-  max-width: 46rem;
+.eyebrow::before {
+  content: "";
+  width: 26px;
+  height: 2px;
+  background: var(--brass);
 }
 .hero h1 {
-  font: 700 clamp(2.3rem, 7vw, 3.9rem) / 1.04 var(--serif);
-  letter-spacing: -0.025em;
+  font: 900 clamp(2.7rem, 6.1vw, 5.5rem) / 0.97 var(--display);
+  letter-spacing: -0.028em;
   text-wrap: balance;
 }
 .lead {
-  margin-top: 20px;
-  font-size: clamp(1.05rem, 2.4vw, 1.25rem);
+  font-size: clamp(1.15rem, 1.7vw, 1.36rem);
   line-height: 1.5;
-  max-width: 38rem;
-}
-.nots {
-  list-style: none;
-  padding: 0;
-  margin: 18px 0 26px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 22px;
-  color: var(--muted);
-  font-size: 0.95rem;
-}
-.nots li::before {
-  content: "✕ ";
-  color: var(--ink);
-  font-weight: 700;
-}
-.hero .fine {
-  margin-top: 12px;
-}
-.hero .error {
-  margin-top: 10px;
+  max-width: 33rem;
 }
 
-.steps,
-.two,
-.contracts {
-  border-top: 1px solid var(--line);
-  padding: 36px 0;
+/* The plate: a patent sheet lying slightly askew on the counter. */
+.hero-plate {
+  justify-self: center;
+  width: min(100%, 392px);
+  padding: 20px 26px 22px;
+  background: var(--paper-lit) var(--grain);
+  border: 1px solid var(--rule);
+  box-shadow: 0 1px 0 rgb(27 22 18 / 14%), 0 18px 40px -18px rgb(42 31 23 / 45%);
+  transform: rotate(1.1deg);
 }
-.steps h2,
-.two h2,
-.contracts h2 {
-  font: 700 1.45rem/1.2 var(--serif);
-  letter-spacing: -0.01em;
-  margin-bottom: 14px;
-}
-.steps ol {
-  list-style: none;
-  padding: 0;
-  counter-reset: step;
+.plate-head {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 16px;
-}
-.steps li {
-  counter-increment: step;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 18px;
-}
-.steps li::before {
-  content: counter(step);
-  display: inline-grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  background: var(--ink);
-  color: var(--card);
-  font: 700 0.85rem/1 var(--mono);
-  margin-bottom: 10px;
-}
-.steps h3 {
-  font-size: 1.05rem;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px 8px;
   margin-bottom: 4px;
+  text-align: center;
+  line-height: 1.25;
 }
-.steps p {
-  color: var(--muted);
-  font-size: 0.95rem;
+.plate-head .who {
+  grid-column: 1 / -1;
+  font: 500 0.78rem var(--data);
+  letter-spacing: 0.34em;
 }
-.two {
+.plate-head .what {
+  grid-column: 1 / -1;
+  font-size: 1.02rem;
+}
+.plate-head .left,
+.plate-head .right {
+  font: 800 0.86rem var(--display);
+  letter-spacing: 0.01em;
+}
+.plate-head .left {
+  text-align: left;
+}
+.plate-head .right {
+  text-align: right;
+}
+.hero-plate .indicator {
+  width: 82%;
+  margin: 0 auto;
+}
+.hero-plate figcaption {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--rule);
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 28px 40px;
+  gap: 3px;
+  font-size: 0.98rem;
+  line-height: 1.4;
+  min-height: 5.6em;
+  align-content: start;
 }
-.two p {
-  color: var(--muted);
+.caption-label {
+  color: var(--ink-soft);
 }
-.contracts ul {
+.hero-plate figcaption a {
+  font-style: italic;
+}
+
+/* Live numbers, ruled off like the foot of a ledger page. */
+.strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 32px;
+  padding-top: 0;
+  padding-bottom: 56px;
+}
+.strip div {
+  border-top: 3px double var(--ink);
+  padding-top: 12px;
+}
+.strip dt {
+  color: var(--ink-soft);
+}
+.strip dd {
+  font: 500 1.3rem/1.35 var(--data);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Home: the story. The one dark room on the page: the inside of the cabinet. ── */
+
+.story {
+  background: var(--walnut) var(--grain);
+  color: var(--paper);
+  padding: 92px 0 96px;
+}
+.story .eyebrow {
+  color: var(--brass-lit);
+}
+.story h2 {
+  margin: 20px 0 34px;
+  max-width: 15ch;
+  font: 900 clamp(2.3rem, 5.4vw, 4.6rem) / 1 var(--display);
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+.story-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px 56px;
+  font-size: 1.16rem;
+  line-height: 1.6;
+}
+.story-cols p:last-child {
+  padding-left: 22px;
+  border-left: 2px solid var(--brass);
+}
+.story em {
+  color: var(--brass-lit);
+}
+
+/* ── Home: how it works, as figures ── */
+
+.figs {
+  padding-top: 84px;
+  padding-bottom: 76px;
+}
+.figs h2,
+.tape h2 {
+  font: 800 clamp(1.8rem, 3.2vw, 2.5rem) / 1.1 var(--display);
+  letter-spacing: -0.015em;
+}
+.figs ol {
   list-style: none;
   padding: 0;
-  margin-top: 12px;
+  margin: 30px 0 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 30px 40px;
+}
+.figs li {
+  border-top: 1.5px solid var(--ink);
+  padding-top: 14px;
+  display: grid;
+  gap: 6px;
+  align-content: start;
+}
+.fig-no {
+  font-style: italic;
+  color: var(--ink-soft);
+}
+.figs h3 {
+  font: 700 1.5rem/1.15 var(--display);
+}
+.figs li p {
+  color: var(--ink-soft);
+}
+.aside {
+  margin-top: 44px;
+  max-width: 62ch;
+  padding: 2px 0 2px 20px;
+  border-left: 2px solid var(--brass);
+  font-size: 1.08rem;
+}
+
+/* ── Home: the tape. A strip of register paper, torn at both ends. ── */
+
+.tape {
+  padding-top: 8px;
+  padding-bottom: 88px;
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 22px 56px;
+  align-items: start;
+}
+.tape-head {
+  display: grid;
+  gap: 12px;
+}
+.tape-head p {
+  color: var(--ink-soft);
+  max-width: 34ch;
+}
+.tape table {
+  position: relative;
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--paper-lit);
+  font: 0.82rem/1.3 var(--data);
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 12px 30px -18px rgb(42 31 23 / 50%);
+}
+.tape th,
+.tape td {
+  padding: 11px 14px;
+  text-align: left;
+  white-space: nowrap;
+}
+.tape th {
+  color: var(--ink-soft);
+  border-bottom: 1px solid var(--ink);
+  font-size: 0.64rem;
+}
+.tape td {
+  border-bottom: 1px dashed var(--rule);
+}
+.tape tr:last-child td {
+  border-bottom: 0;
+  padding-bottom: 16px;
+}
+.tape td:last-child {
+  text-align: right;
+}
+.tape > .fine,
+.tape > .contracts {
+  grid-column: 2;
+}
+.contracts {
+  list-style: none;
+  padding: 0;
   display: grid;
   gap: 8px;
-  font-size: 0.95rem;
+  font-size: 0.98rem;
+}
+.contracts li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  align-items: center;
 }
 .contracts .mono {
   word-break: break-all;
 }
 
-/* ── Chain tags ── */
+/* ── Home: close ── */
+
+.close {
+  border-top: 3px double var(--ink);
+  padding-top: 76px;
+  padding-bottom: 92px;
+  display: grid;
+  gap: 30px;
+  justify-items: center;
+  text-align: center;
+}
+.close h2 {
+  font: 900 clamp(2.4rem, 6.4vw, 5.2rem) / 1 var(--display);
+  letter-spacing: -0.028em;
+}
+.close .row {
+  justify-content: center;
+}
+
+/* ── Chain tags: small enamel labels ── */
 
 .chains {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-top: 8px;
+  margin-top: 4px;
 }
 .chain {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 9px 2px 7px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--card);
-  font-size: 0.78rem;
-  font-weight: 600;
+  padding: 2px 8px 2px 6px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--paper-lit);
+  color: var(--ink);
+  font: 500 0.66rem/1.6 var(--data);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
   white-space: nowrap;
-  line-height: 1.5;
 }
 .chain::before {
   content: "";
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: var(--muted);
+  background: var(--ink-soft);
 }
 .chain-baseSepolia::before {
   background: #1f5eff;
 }
 .chain-unichainSepolia::before {
-  background: #f0349f;
+  background: #e0318f;
 }
 .chain-sepolia::before {
-  background: #7d8796;
+  background: #76808f;
 }
 .chain-lasna::before {
-  background: #8a4dff;
+  background: #7a45e6;
 }
 .chain-unknown {
-  color: var(--muted);
-  font-weight: 500;
   border-style: dashed;
+  color: var(--ink-soft);
 }
 
-/* ── The receipt ── */
+/* ── The receipt: what the till hands you ── */
 
 .receipt {
   position: relative;
-  background: var(--card);
-  border: 1px solid var(--line);
+  background: var(--paper-lit) var(--grain);
+  border: 1px solid var(--rule);
   border-bottom: 0;
-  border-radius: 14px 14px 0 0;
-  padding: 22px 24px 18px;
-  margin: 8px 0 34px;
-  box-shadow: var(--shadow);
+  padding: 24px 28px 20px;
+  margin: 8px 0 36px;
+  box-shadow: 0 18px 40px -22px rgb(42 31 23 / 50%);
   display: grid;
-  gap: 16px;
+  gap: 18px;
 }
-/* the torn, toothed bottom edge */
+/* torn off along the teeth */
 .receipt::after {
   content: "";
   position: absolute;
@@ -398,143 +813,113 @@ code {
   right: 0;
   top: 100%;
   height: 9px;
-  background: conic-gradient(from -45deg at 50% 100%, var(--card) 90deg, transparent 0) 0 0 / 18px 100% repeat-x;
+  background: conic-gradient(from -45deg at 50% 100%, var(--paper-lit) 90deg, transparent 0) 0 0 / 18px 100% repeat-x;
 }
 .receipt.loading {
-  min-height: 160px;
+  min-height: 200px;
   place-items: center;
+  place-content: center;
+  text-align: center;
 }
 .receipt-head {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
+  align-items: center;
   gap: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px dashed var(--line);
-  font-size: 0.85rem;
+  padding-bottom: 14px;
+  border-bottom: 1px dashed var(--rule);
 }
-.eyebrow {
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-size: 0.75rem;
+.receipt-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 172px;
+  gap: 16px;
+  align-items: center;
+}
+.receipt-sum {
+  display: grid;
+  gap: 12px;
 }
 .memo {
-  font-size: 1.05rem;
+  font-size: 1.15rem;
+  font-style: italic;
 }
 .amount {
   line-height: 1;
 }
 .amount .figure {
-  font: 600 clamp(2.6rem, 11vw, 3.7rem) / 1 var(--mono);
-  letter-spacing: -0.04em;
+  font: 500 clamp(2.7rem, 11vw, 4rem) / 1 var(--data);
+  letter-spacing: -0.045em;
   font-variant-numeric: tabular-nums;
 }
 .amount .unit,
 .field .unit {
-  color: var(--muted);
-  font-weight: 600;
-  font-size: 1rem;
+  font: 500 0.8rem var(--data);
+  letter-spacing: 0.14em;
+  color: var(--ink-soft);
 }
-
 .status {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
+  font: 500 0.76rem/1.5 var(--data);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brass-deep);
 }
-.status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: var(--wait);
-}
-.status-open .status-dot,
-.status-partly .status-dot {
-  animation: pulse 1.6s ease-in-out infinite;
+.status .muted {
+  letter-spacing: 0.08em;
 }
 .status-paid {
-  color: var(--paid);
+  color: var(--greenback);
 }
-.status-paid .status-dot {
-  background: var(--paid);
-}
-.status-cancelled .status-dot,
-.status-expired .status-dot {
-  background: var(--muted);
+.status-cancelled,
+.status-expired {
+  color: var(--ink-soft);
 }
 
 .paid-block {
-  position: relative;
-  background: var(--paid-soft);
-  border-radius: 10px;
-  padding: 16px 18px;
+  background: var(--greenback-wash);
+  border-left: 3px solid var(--greenback);
+  padding: 14px 18px;
   display: grid;
   gap: 6px;
-  font-size: 1.05rem;
+  font-size: 1.12rem;
 }
-.paid-block p:first-of-type {
-  padding-right: 96px;
-}
-.stamp {
-  position: absolute;
-  top: 12px;
-  right: 14px;
-  padding: 3px 12px;
-  border: 3px double var(--paid);
-  border-radius: 6px;
-  color: var(--paid);
-  font: 800 1.05rem/1.3 var(--sans);
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  transform: rotate(-8deg);
-  animation: stamp 0.45s cubic-bezier(0.2, 1.5, 0.4, 1) both;
-}
-
 .notice,
 .demo {
-  border-radius: 10px;
   padding: 14px 16px;
-  background: var(--wait-soft);
-  font-size: 0.95rem;
+  background: var(--brass-lit);
+  font-size: 1rem;
 }
-.notice {
+.notice,
+.demo.working {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
+}
+.notice .mark,
+.demo .mark {
+  font-size: 1.35rem;
+  color: var(--brass-deep);
 }
 .demo {
-  border: 1px dashed var(--wait);
+  border: 1px dashed var(--brass);
   display: grid;
-  gap: 8px;
+  gap: 10px;
   margin-top: 4px;
 }
-.demo:has(.spinner) {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
 .h2 {
-  font: 700 1.5rem/1.2 var(--serif);
+  font: 800 1.7rem/1.15 var(--display);
 }
 .h3 {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--muted);
+  color: var(--ink-soft);
   margin-bottom: 10px;
 }
 .h4 {
-  font-size: 1rem;
-  font-weight: 700;
+  font: 700 1.2rem/1.2 var(--display);
 }
 
 .receipt > section,
 .receipt-foot {
-  border-top: 1px dashed var(--line);
-  padding-top: 16px;
+  border-top: 1px dashed var(--rule);
+  padding-top: 18px;
 }
 .pay {
   display: grid;
@@ -545,8 +930,8 @@ code {
 }
 .deposit {
   display: grid;
-  grid-template-columns: 128px 1fr;
-  gap: 16px;
+  grid-template-columns: 128px minmax(0, 1fr);
+  gap: 18px;
   align-items: start;
   margin-top: 4px;
 }
@@ -558,39 +943,36 @@ code {
 .qr {
   width: 128px;
   height: 128px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--rule);
 }
 .address {
   display: block;
   padding: 10px 12px;
-  background: var(--soft);
-  border-radius: 8px;
+  background: var(--paper-worn);
   word-break: break-all;
   user-select: all;
-  font-size: 0.9rem;
-  line-height: 1.45;
+  font-size: 0.82rem;
+  line-height: 1.5;
 }
-
 .receipt-foot {
   display: grid;
-  gap: 12px;
+  gap: 14px;
 }
 .receipt-foot dl {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
   gap: 10px 24px;
-  font-size: 0.925rem;
 }
 .receipt-foot dt {
-  color: var(--muted);
-  font-size: 0.8rem;
+  font: 500 0.66rem var(--data);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
 }
-
 .after {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 14px;
   justify-content: center;
 }
 
@@ -605,124 +987,136 @@ code {
   position: relative;
   display: grid;
   grid-template-columns: 14px minmax(0, 1fr) auto;
-  gap: 4px 12px;
-  padding: 9px 0;
+  gap: 4px 14px;
+  padding: 10px 0;
   align-items: start;
 }
-/* the line joining the dots */
 .timeline li:not(:last-child)::before {
   content: "";
   position: absolute;
   left: 6px;
-  top: 22px;
-  bottom: -9px;
+  top: 24px;
+  bottom: -10px;
   width: 2px;
-  background: var(--line);
+  background: var(--rule);
 }
 .timeline li.done:not(:last-child)::before {
-  background: var(--paid);
+  background: var(--greenback);
 }
 .dot {
   width: 14px;
   height: 14px;
-  margin-top: 5px;
+  margin-top: 7px;
   border-radius: 50%;
-  border: 2px solid var(--line);
-  background: var(--card);
+  border: 2px solid var(--rule);
+  background: var(--paper-lit);
   position: relative;
   z-index: 1;
 }
 .done .dot {
-  border-color: var(--paid);
-  background: var(--paid);
+  border-color: var(--greenback);
+  background: var(--greenback);
 }
 .current .dot {
-  border-color: var(--wait);
-  animation: pulse 1.2s ease-in-out infinite;
+  border-color: var(--brass);
+  animation: lamp 1.2s steps(2) infinite;
+}
+@keyframes lamp {
+  50% {
+    background: var(--brass);
+  }
 }
 .what strong {
   display: block;
-  font-weight: 600;
+  font: 700 1.08rem/1.3 var(--display);
 }
 .what .detail {
   display: block;
-  color: var(--muted);
-  font-size: 0.85rem;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
   line-height: 1.4;
 }
 .pending .what strong {
-  color: var(--muted);
+  color: var(--ink-soft);
   font-weight: 500;
 }
 .where {
   display: grid;
   justify-items: end;
-  gap: 3px;
+  gap: 4px;
   text-align: right;
 }
 .when {
-  font: 600 0.85rem var(--mono);
-  color: var(--paid);
+  font: 500 0.8rem var(--data);
+  color: var(--greenback);
 }
 .tx {
-  font: 0.8rem var(--mono);
+  font: 0.74rem var(--data);
   white-space: nowrap;
 }
 .tx.waiting {
-  color: var(--muted);
-  font-family: var(--sans);
+  color: var(--ink-soft);
+  font: italic 0.9rem var(--text);
 }
 
-/* ── Forms ── */
+/* ── Forms: a printed form to fill in ── */
 
 form {
   display: grid;
-  gap: 16px;
+  gap: 20px;
 }
 label > span,
 legend {
   display: block;
-  font-weight: 600;
-  font-size: 0.925rem;
-  margin-bottom: 6px;
+  font: 500 0.7rem var(--data);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 7px;
   padding: 0;
 }
 label small {
   display: block;
-  margin-top: 5px;
-  color: var(--muted);
-  font-size: 0.825rem;
+  margin-top: 6px;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  font-style: italic;
   line-height: 1.45;
 }
 input:not([type="radio"]) {
   width: 100%;
-  padding: 11px 12px;
-  border: 1.5px solid var(--line);
-  border-radius: 9px;
-  background: var(--card);
+  padding: 10px 2px;
+  border: 0;
+  border-bottom: 1.5px solid var(--ink);
+  border-radius: 0;
+  background: transparent;
   color: var(--ink);
-  font: inherit;
+  font: 1.1rem var(--text);
+}
+input::placeholder {
+  color: var(--ink-soft);
+  opacity: 0.6;
 }
 input.mono {
-  font-family: var(--mono);
-  font-size: 0.9rem;
+  font: 0.86rem var(--data);
 }
 input:focus-visible {
   outline: none;
-  border-color: var(--ink);
+  border-bottom-color: var(--brass);
+  box-shadow: 0 2px 0 var(--brass);
 }
 .field.with-unit {
   position: relative;
 }
 .field.with-unit input {
   padding-right: 64px;
-  font: 600 1.4rem var(--mono);
+  font: 500 2rem var(--data);
+  letter-spacing: -0.03em;
 }
 .field.with-unit .unit {
   position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
+  right: 4px;
+  bottom: 16px;
 }
 fieldset {
   border: 0;
@@ -732,115 +1126,145 @@ fieldset {
 .choice {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 8px 13px;
-  border: 1.5px solid var(--line);
+  gap: 8px;
+  padding: 7px 14px;
+  border: 1.5px solid var(--rule);
   border-radius: 999px;
   cursor: pointer;
-  font-size: 0.925rem;
+  font-size: 1rem;
 }
 .choice:has(input:checked) {
   border-color: var(--ink);
-  font-weight: 600;
+  background: var(--paper-worn);
 }
 .choice input {
   accent-color: var(--ink);
   margin: 0;
 }
-
 .mine ul {
   list-style: none;
   padding: 0;
   display: grid;
-  gap: 6px;
 }
 .mine a {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 12px;
+  gap: 14px;
   align-items: center;
-  padding: 11px 14px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 10px;
+  padding: 12px 2px;
+  border-bottom: 1px dashed var(--rule);
   text-decoration: none;
 }
 .mine a .muted {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.9rem;
+  font-style: italic;
 }
 .pill {
-  font-size: 0.78rem;
-  font-weight: 700;
-  padding: 2px 9px;
-  border-radius: 999px;
-  background: var(--wait-soft);
-  color: var(--wait);
+  font: 500 0.64rem var(--data);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: var(--brass-lit);
+  color: var(--brass-deep);
 }
 .pill-2 {
-  background: var(--paid-soft);
-  color: var(--paid);
+  background: var(--greenback-wash);
+  color: var(--greenback);
 }
 .pill-3 {
-  background: var(--soft);
-  color: var(--muted);
+  background: var(--paper-worn);
+  color: var(--ink-soft);
 }
 
-/* ── Motion ── */
+/* ── Stillness for anyone who asks for it ── */
 
-.spinner {
-  flex: none;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  border: 2px solid var(--wait);
-  border-right-color: transparent;
-  animation: spin 0.8s linear infinite;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-@keyframes pulse {
-  50% {
-    opacity: 0.35;
-  }
-}
-@keyframes stamp {
-  from {
-    opacity: 0;
-    transform: rotate(-8deg) scale(1.9);
-  }
-}
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+    animation: none !important;
+    transition: none !important;
+  }
+  .indicator.is-paid .plate-paid {
+    opacity: 1;
   }
 }
 
-/* ── Phones ── */
+/* ── Narrower sheets ── */
 
-@media (max-width: 520px) {
-  :root {
-    --gutter: 16px;
-  }
-  .receipt {
-    padding: 18px 16px 14px;
-  }
+@media (max-width: 900px) {
   .hero {
-    padding-top: 20px;
+    grid-template-columns: minmax(0, 1fr);
   }
-  .hero .button.big {
+  .hero-plate {
+    width: min(100%, 340px);
+  }
+  .story-cols,
+  .tape {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tape > .fine,
+  .tape > .contracts {
+    grid-column: 1;
+  }
+  .figs ol {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
+  }
+  .story {
+    padding: 64px 0 68px;
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --gutter: 18px;
+  }
+  body {
+    font-size: 17px;
+  }
+  .top nav {
+    gap: 12px;
+  }
+  .hero .key.big,
+  .close .key.big {
     flex: 1 1 100%;
   }
+  .strip {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .hero-plate {
+    padding: 18px 18px 20px;
+  }
+  .plate-head .left,
+  .plate-head .right {
+    font-size: 0.74rem;
+    white-space: nowrap;
+  }
+  .story-cols p:last-child {
+    padding-left: 16px;
+  }
+  .tape th,
+  .tape td {
+    padding: 10px 9px;
+  }
+  .tape th:first-child,
+  .tape td:first-child {
+    display: none;
+  }
+  .receipt {
+    padding: 20px 18px 16px;
+  }
+  .receipt-top {
+    grid-template-columns: minmax(0, 1fr) 104px;
+    gap: 10px;
+  }
   .deposit {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: start;
   }
   .timeline li {
@@ -851,16 +1275,7 @@ fieldset {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    justify-items: start;
     gap: 6px 10px;
     text-align: left;
-  }
-  .paid-block p:first-of-type {
-    padding-right: 0;
-    padding-top: 40px;
-  }
-  .stamp {
-    left: 14px;
-    right: auto;
   }
 }

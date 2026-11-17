@@ -46,10 +46,17 @@ export interface InvoiceView {
   steps: Record<StepKey, Step>
   /** Payment landing to invoice marked paid, by block timestamps (whole seconds). */
   secondsToPaid?: number
+  /** True when the search for the sweep transaction ended without finding it. */
+  sweepSearchDone: boolean
 }
 
-/** How far past the payment's block to look for the sweep callback. */
-const SWEEP_WINDOW = 2000n
+/**
+ * Blocks per search for the sweep callback. Base Sepolia's public RPC refuses log queries wider
+ * than 200 blocks (measured 17 Nov 2026), and it is the strictest of the chains Till uses.
+ */
+const SWEEP_CHUNK = 150n
+/** Chunks to search before giving up: 1,200 blocks, four minutes on Base and longer elsewhere. */
+const SWEEP_CHUNKS = 8
 
 export function invoiceLoader(id: Hex) {
   const steps: Record<StepKey, Step> = {
@@ -66,6 +73,8 @@ export function invoiceLoader(id: Hex) {
   let seenBlock = 0n
   let reactedBlock = 0n
   let paymentBlock: bigint | undefined
+  let sweepChunk = 0
+  let sweepSearchDone = false
 
   const home = client(HOME)
   const reactive = client(REACTIVE)
@@ -121,24 +130,39 @@ export function invoiceLoader(id: Hex) {
     const origin = networkById(log.args.chainId!)
     const tx = toHex(log.args.originTxHash!, { size: 32 })
     if (origin && (steps.payment.tx !== tx || steps.payment.time === undefined)) {
+      // A new payment: its sweep is a new search.
       steps.swept = {}
+      sweepChunk = 0
+      sweepSearchDone = false
       await findPayment(origin.key, tx)
     }
   }
 
+  /**
+   * The sweep is the one step whose block the contracts do not record, so it has to be searched
+   * for. It lands a few seconds after the payment. The search goes forward from the payment's
+   * block one small chunk per call, and stops after SWEEP_CHUNKS chunks.
+   */
   async function findSwept() {
     const network = steps.payment.network
-    if (!network || paymentBlock === undefined) return
+    if (!network || paymentBlock === undefined || sweepSearchDone) return
     const pay = client(network)
-    const latest = await pay.getBlockNumber()
-    const toBlock = latest < paymentBlock + SWEEP_WINDOW ? latest : paymentBlock + SWEEP_WINDOW
-    if (toBlock < paymentBlock) return
+    const latest = await pay.getBlockNumber({ cacheTime: 0 })
+    const fromBlock = paymentBlock + BigInt(sweepChunk) * SWEEP_CHUNK
+    if (fromBlock > latest) return
+    const end = fromBlock + SWEEP_CHUNK - 1n
+    const toBlock = end > latest ? latest : end
     const logs = await pay.getContractEvents({
       address: payChain(network).collector, abi: collectorAbi, eventName: 'Swept', args: { invoiceId: id },
-      fromBlock: paymentBlock, toBlock,
+      fromBlock, toBlock,
     })
     const log = logs[0]
-    if (log) steps.swept = { network, tx: log.transactionHash, time: await blockTime(network, log.blockNumber) }
+    if (log) {
+      steps.swept = { network, tx: log.transactionHash, time: await blockTime(network, log.blockNumber) }
+    } else if (toBlock === end && ++sweepChunk >= SWEEP_CHUNKS) {
+      // That whole chunk is in the past and empty, and it was the last one worth searching.
+      sweepSearchDone = true
+    }
   }
 
   function view(): InvoiceView | null {
@@ -151,7 +175,7 @@ export function invoiceLoader(id: Hex) {
 
     const secondsToPaid =
       state === 'paid' && steps.payment.time !== undefined ? Math.max(0, inv.paidAt - steps.payment.time) : undefined
-    return { id, invoice: inv, state, watching, steps: { ...steps }, secondsToPaid }
+    return { id, invoice: inv, state, watching, steps: { ...steps }, secondsToPaid, sweepSearchDone }
   }
 
   return {
@@ -216,5 +240,6 @@ export function invoiceLoader(id: Hex) {
 /** True once there is nothing left on the page that could still change. */
 export function isSettled(view: InvoiceView): boolean {
   if (view.state === 'cancelled') return true
-  return view.state === 'paid' && Boolean(view.steps.marked.tx && view.steps.swept.tx && view.steps.reacted.tx)
+  const sweepSettled = Boolean(view.steps.swept.tx) || view.sweepSearchDone
+  return view.state === 'paid' && Boolean(view.steps.marked.tx && view.steps.reacted.tx) && sweepSettled
 }
