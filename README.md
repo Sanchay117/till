@@ -53,8 +53,8 @@ open five block explorers and look.
 3. **The invoice marks itself paid** on Base, and the money moves to your wallet on the chain it arrived
    on. Nobody presses anything.
 
-Till never holds your money. A deposit address can only ever pay the address you chose, and anyone can
-trigger that payment.
+Till never takes custody of your money. A payment waits at the deposit address for about two seconds,
+and that address can only ever pay the address you chose. Anyone can trigger the payout.
 
 ## Why it needs Reactive
 
@@ -149,8 +149,9 @@ npm run app
 Open <http://localhost:5173>. The app reads the live testnet contracts, so invoice pages work straight
 away. **Watch one get paid** needs a demo wallet: `npm run demo:wallet` creates a second testnet-only key
 in `.env` and gives it a little test USDC from the deployer. That key stays on the server side
-([`app/server/demo.ts`](app/server/demo.ts)); it only pays invoices it created itself, for 0.10 test USDC,
-and those invoices pay it back.
+([`app/server/demo.ts`](app/server/demo.ts)); it only pays invoices it created itself, for 0.10 test USDC.
+Those invoices pay out to a different wallet, the demo seller (by default the deployer), so the sweep
+visibly moves the money; `npm run demo:wallet` tops the demo wallet up again from the deployer.
 
 ### Host the web app
 

@@ -7,7 +7,7 @@
 //     the demo wallet back, so the USDC goes round in a circle.
 //   - An unpaid demo invoice is reused instead of creating another, new ones are spaced apart, and
 //     there is a daily cap. Each new invoice costs Till a little REACT, and that is the real budget.
-import { createWalletClient, http, parseEventLogs, parseUnits, type Address, type Hash, type Hex } from 'viem'
+import { createWalletClient, getAddress, http, isAddress, parseEventLogs, parseUnits, type Address, type Hash, type Hex } from 'viem'
 import { privateKeyToAccount } from 'viem/accounts'
 import { STATUS, bookAbi, erc20Abi, tillAbi } from '../src/abi'
 import { chain, client } from '../src/clients'
@@ -18,6 +18,15 @@ const INVOICE_LIFETIME = 20 * 60 // seconds a demo invoice stays open
 const REUSE_IF_LEFT = 5 * 60 // reuse an unpaid demo invoice with at least this long to run
 const MIN_GAP = 20 // seconds between new demo invoices
 const DAILY_CAP = BigInt(process.env.DEMO_DAILY_CAP ?? 40)
+/**
+ * Where demo invoices pay out: a different wallet from the demo wallet that pays them, so the sweep
+ * visibly moves the money to someone else. By default the deployer's address, which
+ * `npm run demo:wallet` uses to top the demo wallet up again.
+ */
+const DEMO_PAY_TO: Address = (() => {
+  const configured = process.env.DEMO_PAY_TO
+  return getAddress(configured && isAddress(configured) ? configured : '0x205b7759540E7F06f2A4b7fA97e4B89B587848d3')
+})()
 
 export class DemoError extends Error {
   constructor(public status: number, message: string) {
@@ -85,7 +94,7 @@ export async function createDemoInvoice(): Promise<{ id: Hex; reused: boolean }>
   if (count > 0n) {
     const [lastId] = await home().readContract({ address: INVOICE_BOOK, abi: bookAbi, functionName: 'invoicesOf', args: [me, count - 1n, 1n] })
     const last = await invoice(lastId)
-    if (last.status === STATUS.Open && last.received === 0n && last.expiresAt - now() > REUSE_IF_LEFT) {
+    if (last.status === STATUS.Open && last.received === 0n && last.payTo.toLowerCase() === DEMO_PAY_TO.toLowerCase() && last.expiresAt - now() > REUSE_IF_LEFT) {
       return { id: lastId, reused: true }
     }
     if (now() - last.createdAt < MIN_GAP) {
@@ -102,7 +111,7 @@ export async function createDemoInvoice(): Promise<{ id: Hex; reused: boolean }>
   await ensureReactiveFunded()
   const hash = await wallet(HOME).writeContract({
     address: INVOICE_BOOK, abi: bookAbi, functionName: 'createInvoice',
-    args: [me, DEMO_AMOUNT, BigInt(now() + INVOICE_LIFETIME), 'Till live demo'],
+    args: [DEMO_PAY_TO, DEMO_AMOUNT, BigInt(now() + INVOICE_LIFETIME), 'Till live demo'],
   })
   const receipt = await home().waitForTransactionReceipt({ hash, timeout: 60_000 })
   const created = parseEventLogs({ abi: bookAbi, logs: receipt.logs, eventName: 'InvoiceCreated' })[0]

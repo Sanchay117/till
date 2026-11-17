@@ -10,14 +10,36 @@
       name="description"
       content="Send one address. Get paid in USDC on any supported chain. The invoice marks itself paid and the money moves to your wallet, with no server and no bridge. Built on Reactive Network."
     />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://till-theta.vercel.app/" />
     <meta property="og:title" content="Till: an invoice that marks itself paid" />
     <meta
       property="og:description"
       content="Get paid in USDC on any supported chain. The invoice marks itself paid. No server, no bridge."
     />
+    <meta property="og:image" content="https://till-theta.vercel.app/og.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Till's register and dial with a PAID plate, beside the words: Till, an invoice that marks itself paid, whichever chain the money lands on." />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
   <body>
+    <noscript>
+      <main style="max-width: 640px; margin: 48px auto; padding: 0 20px; font: 18px/1.6 Georgia, serif; color: #1b1612">
+        <h1>Till: an invoice that marks itself paid, whichever chain the money lands on.</h1>
+        <p>
+          Create an invoice on Base and get one deposit address, the same on every chain. The payer sends USDC on Base,
+          Unichain or Ethereum Sepolia. One contract on Reactive Network hears the transfer, marks the invoice paid on Base
+          and sweeps the money to the seller, with no server and no bridge.
+        </p>
+        <p>This site needs JavaScript to show live invoices. Live on testnets, with test USDC only.</p>
+        <p>
+          <a href="https://youtu.be/ZL7I8KaX7Jg">Watch the demo (2:40)</a> ·
+          <a href="https://github.com/Sanchay117/till">Code and contract addresses</a>
+        </p>
+      </main>
+    </noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

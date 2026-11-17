@@ -163,13 +163,16 @@ export function InvoicePage({ id }: { id: Hex }) {
               <dt>Paid out to</dt>
               <dd>
                 <AddressLink network={HOME} address={invoice.payTo} /> <span className="muted">only</span>
+                {isDemo && invoice.payTo.toLowerCase() !== invoice.seller.toLowerCase() && (
+                  <span className="muted">, the demo seller's wallet</span>
+                )}
               </dd>
             </div>
             <div>
               <dt>Created by</dt>
               <dd>
                 <AddressLink network={HOME} address={invoice.seller} />
-                {isDemo && <span className="muted"> (demo wallet)</span>}
+                {isDemo && <span className="muted"> (the demo wallet, which also pays it)</span>}
               </dd>
             </div>
           </dl>
