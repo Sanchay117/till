@@ -44,6 +44,27 @@ async function invoice(id: Hex) {
   return home().readContract({ address: INVOICE_BOOK, abi: bookAbi, functionName: 'getInvoice', args: [id] })
 }
 
+/** Reactive's system contract, which bills TillReactive for every reactive transaction. */
+const SYSTEM: Address = '0x8888888888888888888888888888888888888888'
+const debtAbi = [{ type: 'function', name: 'debt', stateMutability: 'view', inputs: [{ type: 'address' }], outputs: [{ type: 'uint256' }] }] as const
+/** One demo costs TillReactive about 0.05 REACT (two reactive transactions); keep a few in hand. */
+const MIN_REACTIVE_GAS = parseUnits(process.env.DEMO_MIN_REACTIVE_GAS ?? '0.2', 18)
+
+/**
+ * Refuses to start a demo that could not finish. If TillReactive is low on gas money or in debt,
+ * Reactive stops delivering its events, and the invoice would wait for a PAID that never comes.
+ */
+async function ensureReactiveFunded() {
+  const reactive = client(REACTIVE)
+  const [balance, debt] = await Promise.all([
+    reactive.getBalance({ address: TILL }),
+    reactive.readContract({ address: SYSTEM, abi: debtAbi, functionName: 'debt', args: [TILL] }),
+  ]).catch(() => [MIN_REACTIVE_GAS, 0n] as const) // if Lasna's RPC is slow, don't block the demo on it
+  if (debt > 0n || balance < MIN_REACTIVE_GAS) {
+    throw new DemoError(503, "The live demo is paused while its testnet gas is topped up. Every past invoice is still on the tape, with all six transactions linked.")
+  }
+}
+
 /**
  * What the browser needs to decide whether to offer the demo. It reads no chain, so it answers at
  * once: the home page waits on this before it can show the last sale.
@@ -78,6 +99,7 @@ export async function createDemoInvoice(): Promise<{ id: Hex; reused: boolean }>
     }
   }
 
+  await ensureReactiveFunded()
   const hash = await wallet(HOME).writeContract({
     address: INVOICE_BOOK, abi: bookAbi, functionName: 'createInvoice',
     args: [me, DEMO_AMOUNT, BigInt(now() + INVOICE_LIFETIME), 'Till live demo'],
@@ -116,6 +138,7 @@ export async function payDemoInvoice(id: Hex, networkKey: NetworkKey): Promise<{
   ])
   // Paying before Reactive has subscribed would send money nobody is watching for.
   if (!watch[6]) throw new DemoError(409, 'Reactive is still setting up this invoice. Try again in a moment.')
+  await ensureReactiveFunded()
   if (alreadyThere > 0n || paying.has(id)) throw new DemoError(409, 'A payment for this invoice is already on its way.')
   if (balance < DEMO_AMOUNT) {
     throw new DemoError(503, `The demo wallet is out of test USDC on ${network.name}. Try another chain.`)

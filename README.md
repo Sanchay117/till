@@ -12,31 +12,31 @@ while you watch every transaction land.
 Built for the [Reactive Omni Buildathon](https://dorahacks.io/hackathon/reactive-omni-buildathon/detail), track *Set It and Forget It*.
 
 > Status, 17 Nov 2026: live on Reactive Lasna, Base Sepolia, Unichain Sepolia and Ethereum Sepolia.
-> Every test invoice that has been paid has settled: 12 so far, 11 paid on Unichain and 1 on Base itself.
+> 16 of 17 test invoices have been paid, and all 16 settled: 15 paid on Unichain and 1 on Base itself.
 > Each was marked PAID on Base 1 or 2 seconds after the payment landed, by block timestamps, which are
-> whole seconds. Twelve runs is a first sample, not a benchmark.
+> whole seconds. The 17th expired unpaid. Sixteen runs is a first sample, not a benchmark.
 
 ## Live on testnet
 
 | Contract | Chain | Address |
 |---|---|---|
 | TillReactive | Reactive Lasna | [`0xc0605f77903922a466e1292f1fa7a0240f46e7dc`](https://lasna.reactscan.net/address/0xc0605f77903922a466e1292f1fa7a0240f46e7dc) |
-| InvoiceBook | Base Sepolia | [`0xfa222c8fc2af8ca27a23816f071449d08141a5a1`](https://sepolia.basescan.org/address/0xfa222c8fc2af8ca27a23816f071449d08141a5a1) |
-| Collector | Base Sepolia | [`0xc88a34d40a9b87700e3e81dc2c87fbdc3a97b6aa`](https://sepolia.basescan.org/address/0xc88a34d40a9b87700e3e81dc2c87fbdc3a97b6aa) |
+| InvoiceBook | Base Sepolia | [`0xfa222c8fc2af8ca27a23816f071449d08141a5a1`](https://base-sepolia.blockscout.com/address/0xfa222c8fc2af8ca27a23816f071449d08141a5a1) |
+| Collector | Base Sepolia | [`0xc88a34d40a9b87700e3e81dc2c87fbdc3a97b6aa`](https://base-sepolia.blockscout.com/address/0xc88a34d40a9b87700e3e81dc2c87fbdc3a97b6aa) |
 | Collector | Unichain Sepolia | [`0xc88a34d40a9b87700e3e81dc2c87fbdc3a97b6aa`](https://sepolia.uniscan.xyz/address/0xc88a34d40a9b87700e3e81dc2c87fbdc3a97b6aa) |
 | Collector | Ethereum Sepolia | [`0x8e08a7577e67de4dd3230c5932fbe19281d43b9d`](https://sepolia.etherscan.io/address/0x8e08a7577e67de4dd3230c5932fbe19281d43b9d) |
 | ForwarderFactory | all three pay chains | `0x8C6835c46ceb6FC07624bC920af255091765dcB5` |
 
-One full loop, from origin event to both callbacks (invoice `0x9a26acce…030b75`, 0.10 test USDC):
+One full loop, from origin event to both callbacks: the run filmed in the demo video (invoice `0xda4502…076f`, 0.10 test USDC):
 
 | Step | Chain | Transaction |
 |---|---|---|
-| 1. Invoice created | Base Sepolia | [`0xa6740809…`](https://sepolia.basescan.org/tx/0xa6740809d752890f699558bed32eaab445652eb034d5bb723d696071bc295c16) |
-| 2. Reactive starts watching the deposit address | Lasna | [`0x6f8af292…`](https://lasna.reactscan.net/tx/0x6f8af292e15d50aabb05dd674735f6c296e7dcd5b90f670a545181d227c73b0b) |
-| 3. Payer sends USDC, a plain transfer | Unichain Sepolia | [`0xedbee6c1…`](https://sepolia.uniscan.xyz/tx/0xedbee6c1954170c77e7a66cb0782b83a1ab70d42ecd0c004e58ad1984d040e72) |
-| 4. Reactive transaction | Lasna | [`0x8602880b…`](https://lasna.reactscan.net/tx/0x8602880b03e68ff0cfce68a982af5b38a7be2cde39e54561997833f45c183767) |
-| 5. Callback: invoice marked PAID | Base Sepolia | [`0xed2d0f8e…`](https://sepolia.basescan.org/tx/0xed2d0f8eb3b05d312874d7668d2f3492941fdef13d2b8ee9c55fb9a61ab7f6ae) |
-| 6. Callback: money swept to the seller | Unichain Sepolia | [`0x98b4cbbd…`](https://sepolia.uniscan.xyz/tx/0x98b4cbbda281afbf13b4b311b6ae79afb389605137896c35e328f53ebc26cecd) |
+| 1. Invoice created | Base Sepolia | [`0xafbe0308…`](https://base-sepolia.blockscout.com/tx/0xafbe03083d11f4a50516de0d71b984489f2e9bd0425867b802adaae3f046a507) |
+| 2. Reactive starts watching the deposit address | Lasna | [`0x641fcd52…`](https://lasna.reactscan.net/tx/0x641fcd527e3a1229076e3ecaa664acee0856693b0aa269a68d79d392dccca3e1) |
+| 3. Payer sends USDC, a plain transfer | Unichain Sepolia | [`0x9b203684…`](https://sepolia.uniscan.xyz/tx/0x9b203684c5ee2b23529459c7b60350f38ceb85a8015239ecba7e88b79435b4cc) |
+| 4. Reactive transaction | Lasna | [`0x916e942f…`](https://lasna.reactscan.net/tx/0x916e942f143c4c933e0f49462a438f3933548cdc3a966db71e64bdc8e49f4bc4) |
+| 5. Callback: invoice marked PAID (+1 s) | Base Sepolia | [`0x486b9581…`](https://base-sepolia.blockscout.com/tx/0x486b9581e69f0d9d7d1dd53be3cda48f155497d89ded1a9d6f1722a27368182e) |
+| 6. Callback: money swept to the seller (+2 s) | Unichain Sepolia | [`0x164a1583…`](https://sepolia.uniscan.xyz/tx/0x164a1583c6e05c22ddb21cecd00808a451b91f7d2d90b7b3a59f6fc4df6735e6) |
 
 ## The problem
 
