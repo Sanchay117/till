@@ -23,3 +23,6 @@ Thumbs.db
 
 # local devnet output
 deployments/local.json
+
+# private working notes: strategy, field review, risks
+HACKATHON.md
